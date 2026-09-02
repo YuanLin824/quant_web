@@ -8,6 +8,7 @@ interface LoginParams {
 interface LoginResult {
   accessToken: string
   refreshToken: string
+  username: string
 }
 
 export function login(params: LoginParams) {

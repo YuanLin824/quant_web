@@ -1,5 +1,8 @@
 import ThemeSegmented from "@/components/ThemeSegmented"
-import { Breadcrumb, Card, Layout, Menu } from "antd"
+import useAuth from "@/zustand/useAuth"
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons"
+import { Breadcrumb, Card, Dropdown, Layout, Menu } from "antd"
+import toast from "react-hot-toast"
 import { Outlet, useLocation, useNavigate } from "react-router"
 
 import { toBreadcrumbItems, toMenuItems } from "./menus"
@@ -7,6 +10,22 @@ import { toBreadcrumbItems, toMenuItems } from "./menus"
 export default function BaseLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { username, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    toast.success("退出登录成功")
+    navigate("/login")
+  }
+
+  const dropdownItems = [
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "退出登录",
+      onClick: handleLogout,
+    },
+  ]
 
   return (
     <Layout className="h-full">
@@ -16,8 +35,14 @@ export default function BaseLayout() {
           <span className="font-bold text-2xl text-[#FFFFFFD9]">QUANT</span>
         </div>
         <div className="flex-1" />
-        <div className="h-full flex items-center px-4">
+        <div className="h-full flex items-center gap-4 px-4">
           <ThemeSegmented />
+          <Dropdown menu={{ items: dropdownItems }} placement="bottomRight">
+            <div className="flex cursor-pointer items-center gap-2 text-[#FFFFFFD9]">
+              <UserOutlined />
+              <span>{username}</span>
+            </div>
+          </Dropdown>
         </div>
       </Layout.Header>
 

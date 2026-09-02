@@ -5,7 +5,8 @@ interface AuthState {
   accessToken: string | null
   refreshToken: string | null
   isAuthenticated: boolean
-  login: (accessToken: string, refreshToken: string) => void
+  username: string | null
+  login: (accessToken: string, refreshToken: string, username: string) => void
   logout: () => void
   updateTokens: (accessToken: string, refreshToken: string) => void
 }
@@ -16,17 +17,20 @@ const useAuth = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
-      login: (accessToken, refreshToken) =>
+      username: null,
+      login: (accessToken, refreshToken, username) =>
         set({
           accessToken,
           refreshToken,
           isAuthenticated: true,
+          username,
         }),
       logout: () =>
         set({
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
+          username: null,
         }),
       updateTokens: (accessToken, refreshToken) =>
         set({
