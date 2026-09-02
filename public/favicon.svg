@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="qg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#qg)"/>
+  <!-- Q 圆环 -->
+  <circle cx="29" cy="28" r="14" fill="none" stroke="#ffffff" stroke-width="5.5"/>
+  <!-- Q 尾巴 -->
+  <line x1="39" y1="38" x2="50" y2="49" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- 三次折叠向上红色折线 -->
+  <path d="M20 33 L24 28 L28 32 L33 25 L36 20" fill="none" stroke="#EF4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 终点箭头：尖端(36,20)，两翼沿最后一段方向对称张开 25°、翼长 5 -->
+  <path d="M31.9 22.8 L36 20 L35.5 25" fill="none" stroke="#EF4444" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

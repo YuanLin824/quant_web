@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      ;(function () {
+        // 从 localStorage 读取主题偏好
+        // 确定要应用的主题：优先使用存储的，否则跟随系统
+        let theme = localStorage.getItem("theme")
+        if (!["dark", "light"].includes(theme)) {
+          // 不是 "dark" | "light", 则默认为 "system"
+          localStorage.setItem("theme", "system")
+          // 检测系统偏好
+          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+          theme = prefersDark ? "dark" : "light"
+        }
+
+        // 本地保存的 theme 不是 "system" 时, 保存当前 theme
+        if (localStorage.getItem("theme") !== "system") localStorage.setItem("theme", theme)
+
+        // 根据 theme 设置对应的属性或类名
+        // 注意：这里要 next-themes 的配置保持一致
+        // 如果使用 attribute="data-theme"，则设置 data-theme 属性
+        document.documentElement.setAttribute("data-theme", theme)
+        // 如果使用 attribute="class"，则添加类名
+        // document.documentElement.classList.add(theme);
+
+        // 额外的：防止闪烁白屏，可以立即设置背景色（可选）
+        // document.documentElement.style.backgroundColor = theme === 'dark' ? '#1a1a1a' : '#f0f0f0';
+      })()
+    </script>
+    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quant_web</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
