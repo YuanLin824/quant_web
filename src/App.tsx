@@ -1,6 +1,7 @@
 import BaseLayout from "@/layout/BaseLayout"
 import Home from "@/pages/Home"
 import Login from "@/pages/Login"
+import Register from "@/pages/Register"
 import { queryClient } from "@/queryClient"
 import useAuth from "@/zustand/useAuth"
 import { QueryClientProvider } from "@tanstack/react-query"
@@ -50,6 +51,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<BaseLayout />}>
                 <Route path="/" element={<Home />} />

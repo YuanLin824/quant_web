@@ -5,7 +5,7 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons"
 import { useMutation } from "@tanstack/react-query"
 import { Button, Card, Form, Input } from "antd"
 import toast from "react-hot-toast"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 interface LoginValues {
   username: string
@@ -60,6 +60,11 @@ export default function Login() {
               登录
             </Button>
           </Form.Item>
+
+          <div className="text-center">
+            <span className="text-gray-500">还没有账号？</span>
+            <Link to="/register">立即注册</Link>
+          </div>
         </Form>
       </Card>
     </div>
