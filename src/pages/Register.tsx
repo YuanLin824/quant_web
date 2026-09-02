@@ -34,7 +34,7 @@ export default function Register() {
   return (
     <div className="flex h-screen items-center justify-center">
       <Card
-        className="w-[400px]"
+        className="w-100"
         title={
           <div className="flex items-center justify-between">
             <span className="text-xl font-bold">注册</span>
@@ -42,12 +42,7 @@ export default function Register() {
           </div>
         }
       >
-        <Form
-          name="register"
-          onFinish={onFinish}
-          autoComplete="off"
-          size="large"
-        >
+        <Form name="register" onFinish={onFinish} autoComplete="off" size="large">
           <Form.Item
             name="username"
             rules={[
@@ -88,12 +83,7 @@ export default function Register() {
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              loading={mutation.isPending}
-            >
+            <Button type="primary" htmlType="submit" block loading={mutation.isPending}>
               注册
             </Button>
           </Form.Item>

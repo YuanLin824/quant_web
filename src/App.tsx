@@ -1,6 +1,8 @@
 import BaseLayout from "@/layout/BaseLayout"
+import ErrorPage from "@/pages/ErrorPage"
 import Home from "@/pages/Home"
 import Login from "@/pages/Login"
+import NotFound from "@/pages/NotFound"
 import Register from "@/pages/Register"
 import { queryClient } from "@/queryClient"
 import useAuth from "@/zustand/useAuth"
@@ -53,10 +55,11 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute />}>
-              <Route element={<BaseLayout />}>
+              <Route element={<BaseLayout />} errorElement={<ErrorPage />}>
                 <Route path="/" element={<Home />} />
               </Route>
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
