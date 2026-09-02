@@ -1,24 +1,8 @@
-import { Breadcrumb, Card, Layout, Menu, Segmented } from "antd"
-import { useTheme } from "next-themes"
+import ThemeSegmented from "@/components/ThemeSegmented"
+import { Breadcrumb, Card, Layout, Menu } from "antd"
 import { Outlet, useLocation, useNavigate } from "react-router"
 
 import { toBreadcrumbItems, toMenuItems } from "./menus"
-
-/** 主题切换（next-themes 驱动，置于 Header 右侧） */
-function ThemeSegmented() {
-  const { theme, setTheme } = useTheme()
-  return (
-    <Segmented
-      value={theme ?? "system"}
-      onChange={(value) => setTheme(value as string)}
-      options={[
-        { label: "浅色", value: "light" },
-        { label: "深色", value: "dark" },
-        { label: "系统", value: "system" },
-      ]}
-    />
-  )
-}
 
 export default function BaseLayout() {
   const navigate = useNavigate()

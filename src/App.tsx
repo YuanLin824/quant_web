@@ -1,13 +1,23 @@
 import BaseLayout from "@/layout/BaseLayout"
 import Home from "@/pages/Home"
+import Login from "@/pages/Login"
 import { queryClient } from "@/queryClient"
+import useAuth from "@/zustand/useAuth"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { theme as antdTheme, ConfigProvider } from "antd"
 import zhCN from "antd/locale/zh_CN"
 import { useTheme } from "next-themes"
 import { useMemo } from "react"
 import { Toaster } from "react-hot-toast"
-import { BrowserRouter, Route, Routes } from "react-router"
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router"
+
+function ProtectedRoute() {
+  const { isAuthenticated } = useAuth()
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  return <Outlet />
+}
 
 export default function App() {
   const { theme, resolvedTheme } = useTheme()
@@ -39,8 +49,11 @@ export default function App() {
         <Toaster position="top-center" toastOptions={{ style: toastStyle }} />
         <BrowserRouter>
           <Routes>
-            <Route element={<BaseLayout />}>
-              <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<BaseLayout />}>
+                <Route path="/" element={<Home />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
