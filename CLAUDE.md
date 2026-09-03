@@ -48,12 +48,17 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 
 - `src/utils/request.ts` — axios 实例（`baseURL: /api`）；请求拦截器自动附加 `accessToken`；响应拦截器提取 `response.data` 并通过 toast 显示错误
 - `src/api/auth.ts` — 认证接口（login、register、refresh、logout、getProfile）
+- `src/api/stock.ts` — 股票行情接口（getStockQuotes 批量获取、getStockQuote 单只获取）
 
 ### 布局
 
 - `src/layout/BaseLayout.tsx` — 已认证页面外壳：顶部栏（Logo + 主题切换 + 用户下拉菜单）、侧边栏菜单、面包屑、内容区
 - `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径
 - `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes
+
+### 工具函数
+
+- `src/utils/tradingTime.ts` — 交易时间判断工具（isTradingTime、getNextTradingTime），支持 A股、港股、美股
 
 ### 主题
 

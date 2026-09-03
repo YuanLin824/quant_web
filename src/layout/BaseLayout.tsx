@@ -1,4 +1,5 @@
 import ThemeSegmented from "@/components/ThemeSegmented"
+import { MENU_ITEMS } from "@/layout/menus"
 import useAuth from "@/zustand/useAuth"
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons"
 import { Breadcrumb, Card, Dropdown, Layout, Menu } from "antd"
@@ -51,7 +52,10 @@ export default function BaseLayout() {
           <Menu
             items={toMenuItems}
             mode="inline"
-            selectedKeys={[location.pathname]}
+            selectedKeys={[
+              MENU_ITEMS.find((item) => location.pathname.startsWith(item.key))?.key ??
+                location.pathname,
+            ]}
             onClick={({ key }) => navigate(key)}
             className="py-4! h-full"
           />
