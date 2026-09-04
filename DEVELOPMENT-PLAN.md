@@ -9,7 +9,6 @@
 - [x] 404 页面
 - [x] 错误兜底页面
 - [x] 仪表盘页
-- [x] K线图页
 - [ ] 系统管理
   - [ ] 用户管理
   - [ ] 角色管理
@@ -53,26 +52,6 @@
 - 使用 React Query 轮询获取数据（交易时间内每5秒）
 - 点击指数卡片跳转到对应 K 线图页（美股除外）
 
-## K线图页
-
-路由: `/dashboard/kline`
-
-### 功能要求
-
-- 使用 lightweight-charts v5 绘制专业 K 线图
-- 支持日K、周K、月K 三种周期切换
-- 显示成交量柱状图（独立面板，不与K线重叠）
-- 涨跌颜色标识（红涨绿跌）
-- 跟随十字线显示 tooltip（开盘、最高、最低、收盘、成交量）
-- 主题跟随系统自动切换（亮色/暗色）
-- 隐藏 TradingView 水印
-- 隐藏面板分割线
-- 返回按钮跳转到仪表盘
-- 周期选择器与返回按钮同一行
-- K线数据默认获取360条
-- 面包屑导航：QUANT > 仪表盘 > K线图
-- 侧栏仪表盘菜单高亮
-
 ## 已完成功能
 
 ### 认证系统
@@ -86,7 +65,7 @@
 
 - 统一请求封装（src/utils/request.ts）
 - 认证接口（login、register、refresh、logout、getProfile）
-- 股票行情接口（getStockQuotes、getStockQuote、getKLineData）
+- 股票行情接口（getStockQuotes、getStockQuote、getKLineData、searchStock）
 
 ### 主题系统
 
@@ -100,5 +79,4 @@
 - `/login` - 登录页
 - `/register` - 注册页
 - `/dashboard` - 仪表盘页
-- `/dashboard/kline` - K线图页
 - `*` - 404页面

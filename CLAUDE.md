@@ -37,7 +37,15 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 
 - `src/App.tsx` — 顶层 Provider 组合（antd `ConfigProvider`、`QueryClientProvider`、`ThemeProvider`、`Toaster`）及路由定义
 - `ProtectedRoute` 组件检查 Zustand 认证状态，未认证用户重定向至 `/login`
-- 路由：`/login`、`/register`、`/`（需认证）、`*`（404）
+- 路由：
+  - `/login` — 登录页
+  - `/register` — 注册页
+  - `/` — 重定向到 `/dashboard`
+  - `/dashboard` — 仪表盘页（需认证）
+  - `/dashboard/kline` — K线图页（需认证）
+  - `/quant/stock-search` — 股票搜索页（需认证）
+  - `/quant/stock-search/detail` — 股票详情页（需认证）
+  - `*` — 404页面
 
 ### 状态管理
 
@@ -46,14 +54,19 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 
 ### API 层
 
-- `src/utils/request.ts` — axios 实例（`baseURL: /api`）；请求拦截器自动附加 `accessToken`；响应拦截器提取 `response.data` 并通过 toast 显示错误
+- `src/utils/request.ts` — axios 实例（`baseURL: /api`）；请求拦截器自动附加 `accessToken`（从 Zustand store 获取）；响应拦截器提取 `response.data` 并通过 toast 显示错误；401 错误自动刷新 token
 - `src/api/auth.ts` — 认证接口（login、register、refresh、logout、getProfile）
-- `src/api/stock.ts` — 股票行情接口（getStockQuotes 批量获取、getStockQuote 单只获取）
+- `src/api/stock.ts` — 股票行情接口：
+  - `getStockQuotes(market, codes)` — 批量获取行情（POST `/stock-sdk/quotes/:market`）
+  - `getStockQuote(market, code)` — 单只获取行情（GET `/stock-api/quote/:market/:code`）
+  - `getFundQuotes(codes)` — 批量获取基金行情（POST `/stock-sdk/funds`）
 
 ### 布局
 
 - `src/layout/BaseLayout.tsx` — 已认证页面外壳：顶部栏（Logo + 主题切换 + 用户下拉菜单）、侧边栏菜单、面包屑、内容区
-- `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径
+- `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径：
+  - `/dashboard` — 仪表盘
+  - `/quant/stock-search` — 股票搜索
 - `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes
 
 ### 工具函数
@@ -78,6 +91,7 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 
 ## 关键约定
 
+- tailwind 使用 V4 版本的语法, 禁用 V3 版本语法
 - Antd 是唯一 UI 组件库 — 不引入 shadcn、MUI 等
 - Zustand 是唯一状态管理 — 不使用 Redux、Jotai 等
 - 所有 API 调用走 `src/utils/request.ts` — 不直接使用 fetch 或裸 axios

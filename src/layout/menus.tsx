@@ -21,10 +21,6 @@ export const toMenuItems: MenuProps["items"] = MENU_ITEMS.map(({ key, icon, labe
 
 /** 根据路径生成面包屑 items */
 export function toBreadcrumbItems(pathname: string): BreadcrumbProps["items"] {
-  // 特殊处理K线页面
-  if (pathname === "/dashboard/kline") {
-    return [{ title: "QUANT" }, { title: "仪表盘", href: "/dashboard" }, { title: "K线图" }]
-  }
   const current = MENU_ITEMS.find((item) => item.key === pathname)
   if (!current) return [{ title: "QUANT" }]
   return [{ title: "QUANT" }, { title: current.label }]

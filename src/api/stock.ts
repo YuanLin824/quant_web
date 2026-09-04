@@ -1,42 +1,42 @@
 import request from "@/utils/request"
 
+/** 股票行情接口 */
 export interface StockQuote {
   code: string
   name: string
-  now: number
-  percent: number
-  low: number
-  high: number
-  yesterday: number
-  source: string
-}
-
-export interface KLineData {
-  date: string
+  price: number
+  change: number
+  changePercent: number
   open: number
-  close: number
   high: number
   low: number
+  prevClose: number
   volume: number
-  source: string
+  amount: number
+  market: string
 }
 
-/** 批量获取股票行情 */
-export function getStockQuotes(codes: string[]) {
-  return request.post<StockQuote[]>("/stock/quotes", { codes })
+/** 基金行情接口 */
+export interface FundQuote {
+  code: string
+  name: string
+  nav: number
+  accNav: number
+  change: number
+  navDate: string
 }
 
-/** 获取单只股票行情 */
+/** 批量获取股票行情（stock-sdk） */
+export function getStockQuotes(market: string, codes: string[]) {
+  return request.post<StockQuote[]>(`/stock-sdk/quotes/${market}`, { codes })
+}
+
+/** 获取单只股票行情（stock-api） */
 export function getStockQuote(market: string, code: string) {
-  return request.get<StockQuote>(`/stock/quote/${market}/${code}`)
+  return request.get<StockQuote>(`/stock-api/quote/${market}/${code}`)
 }
 
-/** 获取K线数据 */
-export function getKLineData(
-  market: string,
-  code: string,
-  period: string = "day",
-  count: number = 360
-) {
-  return request.get<KLineData[]>(`/stock/kline/${market}/${code}`, { params: { period, count } })
+/** 批量获取基金行情（stock-sdk） */
+export function getFundQuotes(codes: string[]) {
+  return request.post<FundQuote[]>("/stock-sdk/funds", { codes })
 }

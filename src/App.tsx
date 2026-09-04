@@ -1,7 +1,6 @@
 import BaseLayout from "@/layout/BaseLayout"
 import Dashboard from "@/pages/Dashboard"
 import ErrorPage from "@/pages/ErrorPage"
-import KLine from "@/pages/KLine"
 import Login from "@/pages/Login"
 import NotFound from "@/pages/NotFound"
 import Register from "@/pages/Register"
@@ -59,7 +58,6 @@ export default function App() {
               <Route element={<BaseLayout />} errorElement={<ErrorPage />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/kline" element={<KLine />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>

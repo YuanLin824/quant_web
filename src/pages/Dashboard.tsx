@@ -2,80 +2,90 @@ import { getStockQuotes, type StockQuote } from "@/api/stock"
 import { getNextTradingTime, isTradingTime, type Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Divider, Row, Spin, Tag, Typography } from "antd"
-import { useNavigate } from "react-router"
 
 const { Text, Title } = Typography
 
-/** 表格数据类型（字段可选） */
-interface StockRow {
-  key: string
+/** 股票数据类型（合并本地和API数据） */
+interface StockData {
   code: string
   name: string
-  now?: number
-  percent?: number
+  price?: number
+  changePercent?: number
   low?: number
   high?: number
-  yesterday?: number
-  source?: string
+  prevClose?: number
 }
+
+/** 市场类型映射 */
+const MARKET_MAP: Record<Market, string> = {
+  A: "cn",
+  HK: "hk",
+  HKConnect: "cn",
+  US: "us",
+}
+
+/** 涨跌颜色 */
+const getColor = (percent?: number) => {
+  if (percent == null) return "inherit"
+  return percent > 0 ? "#f5222d" : percent < 0 ? "#52c41a" : "inherit"
+}
+
+/** 格式化数字 */
+const formatNum = (val?: number) => val?.toFixed(2) ?? "-"
+
+/** 格式化百分比 */
+const formatPercent = (val?: number) => (val != null ? `${val.toFixed(2)}%` : "-")
 
 /** A股指数列表 */
 const A_SHARE_INDICES = [
-  { code: "SH000001", name: "上证指数" },
-  { code: "SZ399001", name: "深证指数" },
-  { code: "SZ399006", name: "创业板指" },
-  { code: "SH000680", name: "科创综指" },
-  { code: "SH000688", name: "科创50" },
-  { code: "SH000510", name: "中证A500" },
-  { code: "SH000300", name: "沪深300" },
-  { code: "SH000905", name: "中证500" },
-  { code: "SH000906", name: "中证800" },
-  { code: "SH000852", name: "中证1000" },
-  { code: "SH000016", name: "上证50" },
-  { code: "SH000010", name: "上证180" },
-  { code: "SZ399330", name: "深证100" },
+  { code: "sh000001", name: "上证指数" },
+  { code: "sz399001", name: "深证成指" },
+  { code: "sz399006", name: "创业板指" },
+  { code: "sh000680", name: "科创综指" },
+  { code: "sh000688", name: "科创50" },
+  { code: "sh000510", name: "中证A500" },
+  { code: "sh000300", name: "沪深300" },
+  { code: "sh000905", name: "中证500" },
+  { code: "sh000906", name: "中证800" },
+  { code: "sh000852", name: "中证1000" },
+  { code: "sh000016", name: "上证50" },
+  { code: "sh000010", name: "上证180" },
+  { code: "sz399330", name: "深证100" },
 ]
 
 /** 港股指数列表 */
 const HK_INDICES = [
-  { code: "HKHSI", name: "恒生指数" },
-  { code: "HKHSCEI", name: "国企指数" },
-  { code: "HKHSTECH", name: "恒生科技指数" },
+  { code: "hkHSI", name: "恒生指数" },
+  { code: "hkHSCEI", name: "国企指数" },
+  { code: "hkHSTECH", name: "恒生科技指数" },
 ]
 
 /** 港股通指数列表 */
-const HK_CONNECT_INDICES = [
-  { code: "SH000159", name: "沪股通" },
-  // { code: "SZBK0804", name: "深股通" },
-  { code: "HKCES300", name: "沪深港300" },
-]
+const HK_CONNECT_INDICES = [{ code: "sh000159", name: "沪股通" }]
 
 /** 美股指数列表 */
 const US_INDICES = [
-  { code: "USDJI", name: "道琼斯" },
-  { code: "USIXIC", name: "纳斯达克" },
-  { code: "USINX", name: "标普500" },
-  { code: "USHXC", name: "纳斯达克中国金龙指数" },
-  { code: "USNDX", name: "纳斯达克100" },
+  { code: "usDJI", name: "道琼斯" },
+  { code: "usIXIC", name: "纳斯达克" },
+  { code: "usINX", name: "标普500" },
+  { code: "usHXC", name: "纳斯达克中国金龙指数" },
+  { code: "usNDX", name: "纳斯达克100" },
 ]
 
-/** 根据代码获取市场前缀 */
-function getMarketFromCode(code: string): string {
-  if (code.startsWith("SH") || code.startsWith("SZ")) return code.substring(0, 2)
-  if (code.startsWith("HK")) return "HK"
-  if (code.startsWith("US")) return "US"
-  return ""
-}
+/** 市场板块配置 */
+const MARKET_SECTIONS = [
+  { title: "A股", market: "A" as Market, codes: A_SHARE_INDICES, color: "red" },
+  { title: "港股", market: "HK" as Market, codes: HK_INDICES, color: "blue" },
+  { title: "港股通", market: "HKConnect" as Market, codes: HK_CONNECT_INDICES, color: "purple" },
+  { title: "美股", market: "US" as Market, codes: US_INDICES, color: "green" },
+]
 
 /** 渲染单个指数卡片 */
-function IndexCard({ data, onClick }: { data: StockRow; onClick?: () => void }) {
-  const percent = data.percent
-  const percentText = percent != null ? (percent * 100).toFixed(2) + "%" : "-"
-  const color =
-    percent != null ? (percent > 0 ? "#f5222d" : percent < 0 ? "#52c41a" : "inherit") : "inherit"
+function IndexCard({ data }: { data: StockData }) {
+  const color = getColor(data.changePercent)
 
   return (
-    <Card size="small" hoverable onClick={onClick} className="cursor-pointer">
+    <Card size="small" hoverable>
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <Text strong style={{ fontSize: 14 }}>
@@ -85,14 +95,16 @@ function IndexCard({ data, onClick }: { data: StockRow; onClick?: () => void }) 
         </div>
         <div className="flex items-baseline justify-between">
           <Title level={4} className="mb-0!" style={{ color }}>
-            {data.now?.toFixed(2) ?? "-"}
+            {formatNum(data.price)}
           </Title>
-          <Text style={{ color, fontSize: 14, fontWeight: 500 }}>{percentText}</Text>
+          <Text style={{ color, fontSize: 14, fontWeight: 500 }}>
+            {formatPercent(data.changePercent)}
+          </Text>
         </div>
         <div className="flex justify-between" style={{ fontSize: 12, color: "#999" }}>
-          <span>高: {data.high?.toFixed(2) ?? "-"}</span>
-          <span>低: {data.low?.toFixed(2) ?? "-"}</span>
-          <span>昨收: {data.yesterday?.toFixed(2) ?? "-"}</span>
+          <span>高: {formatNum(data.high)}</span>
+          <span>低: {formatNum(data.low)}</span>
+          <span>昨收: {formatNum(data.prevClose)}</span>
         </div>
       </div>
     </Card>
@@ -105,52 +117,27 @@ function MarketSection({
   market,
   codes,
   color,
-  clickable = true,
 }: {
   title: string
   market: Market
   codes: { code: string; name: string }[]
   color: string
-  clickable?: boolean
 }) {
-  const navigate = useNavigate()
   const codeList = codes.map((c) => c.code)
   const trading = isTradingTime(market)
 
   const { data, isLoading } = useQuery({
     queryKey: ["stockQuotes", title],
-    queryFn: () => getStockQuotes(codeList),
-    // 只在交易时间内轮询，否则不轮询
+    queryFn: () => getStockQuotes(MARKET_MAP[market], codeList),
     refetchInterval: trading ? 5_000 : false,
   })
 
-  // 合并 API 返回数据与本地名称
-  // data 格式: { code: 200, data: StockQuote[], message: "..." }
+  // 合并 API 返回数据与本地代码列表
   const quotes = (data as unknown as { code: number; data: StockQuote[] })?.data ?? []
-  const dataSource: StockRow[] = codes.map((item) => {
-    const quote = quotes.find((q) => q.code === item.code)
-    return {
-      key: item.code,
-      code: item.code,
-      name: quote?.name || item.name,
-      now: quote?.now,
-      percent: quote?.percent,
-      low: quote?.low,
-      high: quote?.high,
-      yesterday: quote?.yesterday,
-      source: quote?.source,
-    }
+  const dataSource = codes.map((item) => {
+    const quote = quotes.find((q) => item.name === q.name)
+    return { ...quote, ...item }
   })
-
-  const handleCardClick = clickable
-    ? (item: StockRow) => {
-        const marketPrefix = getMarketFromCode(item.code)
-        const stockCode = item.code.substring(marketPrefix.length)
-        navigate(
-          `/dashboard/kline?code=${stockCode}&name=${encodeURIComponent(item.name)}&market=${marketPrefix}`
-        )
-      }
-    : undefined
 
   return (
     <div className="flex flex-col gap-3">
@@ -169,10 +156,7 @@ function MarketSection({
         <Row gutter={[12, 12]}>
           {dataSource.map((item) => (
             <Col key={item.code} xs={24} lg={12} xl={8} xxl={6}>
-              <IndexCard
-                data={item}
-                onClick={handleCardClick ? () => handleCardClick(item) : undefined}
-              />
+              <IndexCard data={item} />
             </Col>
           ))}
         </Row>
@@ -184,10 +168,9 @@ function MarketSection({
 export default function Dashboard() {
   return (
     <div className="flex flex-col gap-6">
-      <MarketSection title="A股" market="A" codes={A_SHARE_INDICES} color="red" />
-      <MarketSection title="港股" market="HK" codes={HK_INDICES} color="blue" />
-      <MarketSection title="港股通" market="HKConnect" codes={HK_CONNECT_INDICES} color="purple" />
-      <MarketSection title="美股" market="US" codes={US_INDICES} color="green" clickable={false} />
+      {MARKET_SECTIONS.map((section) => (
+        <MarketSection key={section.title} {...section} />
+      ))}
     </div>
   )
 }
