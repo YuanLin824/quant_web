@@ -50,7 +50,6 @@
   - 美股: 周一至周五 9:30-16:00 (美东时间)
 - 不在交易时间内显示休市提示及下次开盘时间
 - 使用 React Query 轮询获取数据（交易时间内每5秒）
-- 点击指数卡片跳转到对应 K 线图页（美股除外）
 
 ## 已完成功能
 
@@ -65,7 +64,7 @@
 
 - 统一请求封装（src/utils/request.ts）
 - 认证接口（login、register、refresh、logout、getProfile）
-- 股票行情接口（getStockQuotes、getStockQuote、getKLineData、searchStock）
+- 股票行情接口（getStockQuotes、getStockQuote、getFundQuotes）
 
 ### 主题系统
 

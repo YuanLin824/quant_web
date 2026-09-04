@@ -17,71 +17,6 @@ npm run format     # Prettier 格式化
 npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 ```
 
-暂未配置测试运行器。
-
-## 技术栈
-
-- **React 19** + **Vite 8**，已启用 React Compiler（`@rolldown/plugin-babel` + `babel-plugin-react-compiler`）
-- **Ant Design 6** — 唯一 UI 组件库；antd CSS 变量定义在 `src/antd-css-var.css`，用于亮/暗主题
-- **Tailwind CSS 4**，通过 `@tailwindcss/vite` 插件（使用 v4 的 `@import "tailwindcss"` 语法，非 v3 配置文件）
-- **Zustand 5**，使用 `persist` 中间件进行客户端状态持久化
-- **TanStack React Query 5** 用于服务端状态缓存
-- **next-themes** 主题切换（浅色/深色/跟随系统），通过 `data-theme` 属性作用于 `<html>`
-- **axios**，带请求/响应拦截器的 API 调用封装
-- **react-hot-toast** 全局通知
-- **blanksheet** CSS 重置
-
-## 架构
-
-### 路由与认证
-
-- `src/App.tsx` — 顶层 Provider 组合（antd `ConfigProvider`、`QueryClientProvider`、`ThemeProvider`、`Toaster`）及路由定义
-- `ProtectedRoute` 组件检查 Zustand 认证状态，未认证用户重定向至 `/login`
-- 路由：
-  - `/login` — 登录页
-  - `/register` — 注册页
-  - `/` — 重定向到 `/dashboard`
-  - `/dashboard` — 仪表盘页（需认证）
-  - `/dashboard/kline` — K线图页（需认证）
-  - `/quant/stock-search` — 股票搜索页（需认证）
-  - `/quant/stock-search/detail` — 股票详情页（需认证）
-  - `*` — 404页面
-
-### 状态管理
-
-- `src/zustand/useAuth.ts` — 认证 store（token、用户名、登录/登出），持久化至 localStorage（key: `auth`）
-- `src/zustand/useCounter.ts` — 计数器示例 store，持久化至 localStorage（key: `counter`）
-
-### API 层
-
-- `src/utils/request.ts` — axios 实例（`baseURL: /api`）；请求拦截器自动附加 `accessToken`（从 Zustand store 获取）；响应拦截器提取 `response.data` 并通过 toast 显示错误；401 错误自动刷新 token
-- `src/api/auth.ts` — 认证接口（login、register、refresh、logout、getProfile）
-- `src/api/stock.ts` — 股票行情接口：
-  - `getStockQuotes(market, codes)` — 批量获取行情（POST `/stock-sdk/quotes/:market`）
-  - `getStockQuote(market, code)` — 单只获取行情（GET `/stock-api/quote/:market/:code`）
-  - `getFundQuotes(codes)` — 批量获取基金行情（POST `/stock-sdk/funds`）
-
-### 布局
-
-- `src/layout/BaseLayout.tsx` — 已认证页面外壳：顶部栏（Logo + 主题切换 + 用户下拉菜单）、侧边栏菜单、面包屑、内容区
-- `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径：
-  - `/dashboard` — 仪表盘
-  - `/quant/stock-search` — 股票搜索
-- `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes
-
-### 工具函数
-
-- `src/utils/tradingTime.ts` — 交易时间判断工具（isTradingTime、getNextTradingTime），支持 A股、港股、美股
-
-### 主题
-
-- `src/index.css` — 全局样式、自定义滚动条、`--bg-color`/`--text-color` CSS 变量通过 `[data-theme="dark"]` 切换
-- `src/antd-css-var.css` — antd 设计令牌的 CSS 变量全集；为静态值（浅色模式默认），不会随主题自动切换 — 暗色模式由 antd 自身算法通过 `ConfigProvider` 处理
-
-## 路径别名
-
-`@/` 映射到 `src/`（在 tsconfig 和 Vite 的 `tsconfigPaths: true` 中配置）。
-
 ## 代码风格
 
 - Prettier：无分号、双引号、100 字符宽、LF 换行、尾逗号（es5）
@@ -101,3 +36,13 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 - commitlint.config.cjs 是 commitlint 的配置文件(按照这个格式 type(scope): emoji subject 生成提交信息)
 - docker-compose 默认已执行过
 - 不自动启动任何服务，需要启动其他服务时，要进行授权确认
+
+## 更多文档
+
+详细的技术栈、架构和路径别名配置请参阅 `.claude` 目录：
+
+| 文档                                       | 说明                                                   |
+| ------------------------------------------ | ------------------------------------------------------ |
+| [tech-stack.md](.claude/tech-stack.md)     | 技术栈详情（React、Vite、Ant Design、Tailwind CSS 等） |
+| [architecture.md](.claude/architecture.md) | 架构设计（路由、状态管理、API、布局、工具函数、主题）  |
+| [path-alias.md](.claude/path-alias.md)     | 路径别名配置（`@/` → `src/`）                          |
