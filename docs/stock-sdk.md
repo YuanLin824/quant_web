@@ -1,6 +1,6 @@
 # Stock SDK 接口
 
-[← 返回目录](./index.md)
+[← 返回目录](../API.md)
 
 > 所有 Stock SDK 接口需要 JWT 认证，请在请求头中携带 `Authorization: Bearer <access_token>`
 >
@@ -219,8 +219,8 @@ Authorization: Bearer <access_token>
 
 **请求体**
 
-| 参数  | 类型     | 必填 | 说明       |
-| ----- | -------- | ---- | ---------- |
+| 参数  | 类型     | 必填 | 说明         |
+| ----- | -------- | ---- | ------------ |
 | codes | string[] | 是   | 基金代码数组 |
 
 **请求示例**
@@ -257,19 +257,19 @@ Authorization: Bearer <access_token>
 
 **响应字段说明**
 
-| 字段      | 说明                                         |
-| --------- | -------------------------------------------- |
-| code      | 基金代码                                     |
-| name      | 基金名称                                     |
-| nav       | 单位净值                                     |
-| accNav    | 累计净值                                     |
-| change    | 当日涨跌额                                   |
-| navDate   | 净值日期 (YYYY-MM-DD)                        |
-| timestamp | 净值日期时间戳 (毫秒)，无法解析时为 `null`   |
-| tz        | 时区 (`Asia/Shanghai`)                       |
-| market    | 市场 (`CN`)                                  |
-| assetType | 资产类型 (`fund`)                            |
-| source    | 数据源                                       |
+| 字段      | 说明                                       |
+| --------- | ------------------------------------------ |
+| code      | 基金代码                                   |
+| name      | 基金名称                                   |
+| nav       | 单位净值                                   |
+| accNav    | 累计净值                                   |
+| change    | 当日涨跌额                                 |
+| navDate   | 净值日期 (YYYY-MM-DD)                      |
+| timestamp | 净值日期时间戳 (毫秒)，无法解析时为 `null` |
+| tz        | 时区 (`Asia/Shanghai`)                     |
+| market    | 市场 (`CN`)                                |
+| assetType | 资产类型 (`fund`)                          |
+| source    | 数据源                                     |
 
 **示例**
 
@@ -340,12 +340,12 @@ Authorization: Bearer <access_token>
 
 **响应字段说明**
 
-| 字段     | 说明                                            |
-| -------- | ----------------------------------------------- |
-| code     | 代码（带市场前缀，如 `sh600519`）               |
-| name     | 名称                                            |
-| market   | 市场标识（如 `sh`/`sz`/`hk`/`us`）              |
-| type     | 上游原始资产类型（如 `GP-A`/`ZS`/`JJ`）         |
+| 字段     | 说明                                               |
+| -------- | -------------------------------------------------- |
+| code     | 代码（带市场前缀，如 `sh600519`）                  |
+| name     | 名称                                               |
+| market   | 市场标识（如 `sh`/`sz`/`hk`/`us`）                 |
+| type     | 上游原始资产类型（如 `GP-A`/`ZS`/`JJ`）            |
 | category | 标准化资产分类（`stock`/`index`/`fund`），可选字段 |
 
 **示例**
