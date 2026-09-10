@@ -210,7 +210,6 @@ export default function StockSignals() {
             onChange={(e) => setPeriod(e.target.value)}
             optionType="button"
             buttonStyle="solid"
-            size="small"
           />
         }
       >

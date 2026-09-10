@@ -10,7 +10,9 @@ import { useNavigate } from "react-router"
 const { Text, Title } = Typography
 
 /** 指数卡片数据：行情字段来自接口，代码与名称由本地指数列表提供 */
-type StockData = Partial<StockQuote> & { code: string; name: string }
+type StockData = Partial<
+  Pick<StockQuote, "price" | "changePercent" | "high" | "low" | "prevClose">
+> & { code: string; name: string }
 
 /** A股指数列表 */
 const A_SHARE_INDICES = [
@@ -111,9 +113,11 @@ function MarketSection({
   })
 
   // 合并 API 返回数据与本地代码列表
+  // marketId 是带市场前缀的完整代码（如 sh000001），与本地指数列表格式一致；名称匹配作为兜底
   const quotes = data ?? []
   const dataSource = codes.map((item) => {
-    const quote = quotes.find((q) => item.name === q.name)
+    const quote =
+      quotes.find((q) => q.marketId === item.code) ?? quotes.find((q) => q.name === item.name)
     return { ...quote, ...item }
   })
 
