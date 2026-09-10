@@ -10,10 +10,8 @@ import { useEffect, useState } from "react"
  */
 export default function StockSearch({
   onSelect,
-  style,
 }: {
   onSelect: (market: Market, code: string) => void
-  style?: React.CSSProperties
 }) {
   const [keyword, setKeyword] = useState("")
   // 防抖：输入停止 300ms 后再发起搜索请求
@@ -56,7 +54,7 @@ export default function StockSearch({
       onSelect={handleSelect}
       placeholder="输入代码或名称搜索"
       allowClear
-      style={{ width: 320, ...style }}
+      style={{ width: 320 }}
       notFoundContent={isFetching ? <Spin size="small" /> : null}
     />
   )

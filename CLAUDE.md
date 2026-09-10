@@ -32,7 +32,7 @@ npm run commit     # czg 交互式提交（commitlint + lint-staged 约束）
 - Zustand 是唯一状态管理 — 不使用 Redux、Jotai 等
 - 所有 API 调用走 `src/utils/request.ts` — 不直接使用 fetch 或裸 axios
 - 响应拦截器已解包统一响应结构 `{ code, message, data }`，接口函数直接返回 `data`，调用处不再取 `.data`
-- 服务端数据统一用 TanStack Query（`useQuery`）获取，交易时段轮询写在 `refetchInterval`
+- 服务端数据统一用 TanStack Query（`useQuery`）获取；交易时段轮询间隔由 `useTradingStatus`（`src/hooks/`）给出，直接传给 `refetchInterval`
 - 当前选中的股票由 `src/zustand/useStock.ts` 管理并持久化，页面间共享，不用 URL query 传参
 - 主题感知样式：CSS 中使用 `[data-theme="dark"]` 选择器，组件中使用 next-themes 的 `useTheme()` hook
 - 从不自动提交任何代码
