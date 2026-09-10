@@ -47,8 +47,8 @@ export default function Register() {
             name="username"
             rules={[
               { required: true, message: "请输入用户名" },
-              { min: 3, message: "用户名至少 3 个字符" },
-              { max: 32, message: "用户名最多 32 个字符" },
+              { min: 3, max: 32, message: "用户名长度为 3-32 个字符" },
+              { pattern: /^[a-zA-Z0-9_]+$/, message: "用户名只能包含字母、数字和下划线" },
             ]}
           >
             <Input prefix={<UserOutlined />} placeholder="用户名" />
@@ -58,10 +58,17 @@ export default function Register() {
             name="password"
             rules={[
               { required: true, message: "请输入密码" },
-              { min: 6, message: "密码至少 6 个字符" },
+              { min: 8, max: 64, message: "密码长度为 8-64 个字符" },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9])/,
+                message: "密码需包含大写字母、小写字母、数字和特殊字符",
+              },
             ]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="密码（8-64 位，含大小写、数字、符号）"
+            />
           </Form.Item>
 
           <Form.Item
