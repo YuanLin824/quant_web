@@ -1,6 +1,7 @@
 import { getStockQuotes } from "@/api/stock"
+import useTradingStatus from "@/hooks/useTradingStatus"
 import { formatAmount, formatNum, formatPercent, getColor, MARKET_LABEL } from "@/utils/format"
-import { isTradingTime, type Market } from "@/utils/tradingTime"
+import type { Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Tag, Typography } from "antd"
 
@@ -12,11 +13,11 @@ const { Text, Title } = Typography
  * （多页面复用同一 queryKey，共享缓存）
  */
 export default function StockQuoteCard({ market, code }: { market: Market; code: string }) {
-  const trading = isTradingTime(market)
+  const { refetchInterval } = useTradingStatus(market)
   const { data, isLoading } = useQuery({
     queryKey: ["stockQuote", market, code],
     queryFn: () => getStockQuotes(market, [code]),
-    refetchInterval: trading ? 5_000 : false,
+    refetchInterval,
   })
 
   const stock = data?.[0]

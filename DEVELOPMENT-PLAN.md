@@ -109,6 +109,7 @@
 
 ### 公共组件
 
+- `StockPicker` — 股票选择区：搜索框 + 当前股票行情卡片（股票详情页与指标信号页共用）
 - `StockSearch` — 股票搜索框（防抖搜索、结果过滤、选中回调）
 - `StockQuoteCard` — 行情详情卡片（多页面共用同一 queryKey 缓存）
 - `ThemeSegmented` — 主题切换下拉
@@ -117,6 +118,7 @@
 
 - TanStack Query 全局客户端（`src/queryClient.ts`）：retry 1、关闭窗口聚焦重取、staleTime 10s
 - Zustand store：`useAuth`（认证状态，持久化 key `auth`）、`useStock`（当前股票，持久化 key `stock`）
+- `useTradingStatus`（`src/hooks/`）：交易时段判定与 5 秒轮询间隔，供行情类查询使用
 
 ### 主题系统
 

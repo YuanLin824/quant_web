@@ -21,12 +21,11 @@
 
 - `src/zustand/useAuth.ts` — 认证 store（accessToken、refreshToken、isAuthenticated、username 及 login/logout/updateTokens），持久化至 localStorage（key: `auth`）
 - `src/zustand/useStock.ts` — 当前股票 store（market、code 及 setStock），持久化至 localStorage（key: `stock`）；由仪表盘点击指数卡片或页内搜索写入，股票详情页/指标信号页读取
-- `src/zustand/useCounter.ts` — 计数器示例 store，持久化至 localStorage（key: `counter`）
 
 ## 服务端状态
 
 - `src/queryClient.ts` — TanStack Query 全局客户端（retry 1、关闭窗口聚焦重取、staleTime 10s）
-- 行情类查询在交易时段以 `refetchInterval: 5_000` 轮询，是否轮询由 `isTradingTime(market)` 判断
+- `src/hooks/useTradingStatus.ts` — 交易状态与轮询间隔：交易时段返回 5 秒、非交易时段返回 `false`，结果直接传给查询的 `refetchInterval`
 - `StockQuoteCard` 在多页面复用同一 queryKey `["stockQuote", market, code]`，共享缓存
 
 ## API 层
@@ -53,14 +52,15 @@
 
 ## 公共组件
 
+- `src/components/StockPicker.tsx` — 股票选择区（搜索框 + 当前股票行情卡片），股票详情页与指标信号页共用
 - `src/components/StockSearch.tsx` — 股票搜索框（300ms 防抖、过滤基金、美股代码去交易所后缀，选中回调 `(market, code)`）
 - `src/components/StockQuoteCard.tsx` — 行情详情卡片（名称/代码/市场标签、现价与涨跌、12 项关键指标）
 - `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes
 
 ## 工具函数
 
-- `src/utils/tradingTime.ts` — 交易时间判断（`isTradingTime`、`getNextTradingTime`），`Market` 类型为 `cn`/`hk`/`us`
-- `src/utils/format.ts` — 数值格式化与涨跌色：`formatNum`、`formatAmount`（万/亿）、`formatPercent`、`getColor`（红涨绿跌）、`MARKET_LABEL`
+- `src/utils/tradingTime.ts` — 交易时间判断与市场归一化（`isTradingTime`、`getNextTradingTime`、`toMarket`），`Market` 类型为 `cn`/`hk`/`us`
+- `src/utils/format.ts` — 数值格式化与涨跌色：`formatNum`、`formatAmount`（万/亿）、`formatPercent`、`getColor`、`UP_COLOR`/`DOWN_COLOR`（红涨绿跌）、`MARKET_LABEL`
 
 ## 图表
 

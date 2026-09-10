@@ -7,6 +7,17 @@
 export type Market = "cn" | "hk" | "us"
 
 /**
+ * 将市场标识或股票代码归一化为市场类型
+ * @param value 市场标识（如 `hk`/`us`）或带前缀的代码（如 `sh600519`/`hk00700`）
+ * @returns 无法识别时回退为 A 股（`cn`）
+ */
+export function toMarket(value: string): Market {
+  if (value.startsWith("hk")) return "hk"
+  if (value.startsWith("us")) return "us"
+  return "cn"
+}
+
+/**
  * 判断是否在交易时间内
  * @param market 市场类型
  * @param date 当前时间（可选，默认为当前时间）

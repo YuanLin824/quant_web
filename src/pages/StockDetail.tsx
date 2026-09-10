@@ -1,7 +1,13 @@
 import { getStockKLine, type KLineDto } from "@/api/stock"
-import StockQuoteCard from "@/components/StockQuoteCard"
-import StockSearch from "@/components/StockSearch"
-import { formatAmount, formatNum, formatPercent, getColor } from "@/utils/format"
+import StockPicker from "@/components/StockPicker"
+import {
+  DOWN_COLOR,
+  formatAmount,
+  formatNum,
+  formatPercent,
+  getColor,
+  UP_COLOR,
+} from "@/utils/format"
 import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Radio, Spin } from "antd"
@@ -130,10 +136,9 @@ function getDateBefore(days: number): string {
 }
 
 export default function StockDetail() {
-  // 当前股票由 zustand 管理（本地持久化），仪表盘点击/搜索选择后更新
+  // 当前股票由 zustand 管理（本地持久化），通过上方 StockPicker 切换
   const market = useStock((s) => s.market)
   const code = useStock((s) => s.code)
-  const setStock = useStock((s) => s.setStock)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
 
@@ -253,17 +258,17 @@ export default function StockDetail() {
     let candleSeries: ISeriesApi<"Candlestick"> | null = null
     if (isLine) {
       lineSeries = chart.addSeries(LineSeries, {
-        color: "#f5222d",
+        color: UP_COLOR,
         lineWidth: 1,
       })
     } else {
       candleSeries = chart.addSeries(CandlestickSeries, {
-        upColor: "#f5222d",
-        downColor: "#52c41a",
-        borderUpColor: "#f5222d",
-        borderDownColor: "#52c41a",
-        wickUpColor: "#f5222d",
-        wickDownColor: "#52c41a",
+        upColor: UP_COLOR,
+        downColor: DOWN_COLOR,
+        borderUpColor: UP_COLOR,
+        borderDownColor: DOWN_COLOR,
+        wickUpColor: UP_COLOR,
+        wickDownColor: DOWN_COLOR,
       })
     }
 
@@ -305,7 +310,7 @@ export default function StockDetail() {
         list.map((item) => ({
           time: toTime(item),
           value: item.volume ?? 0,
-          color: item.close >= item.open ? "#f5222d70" : "#52c41a70",
+          color: item.close >= item.open ? `${UP_COLOR}70` : `${DOWN_COLOR}70`,
         }))
       )
 
@@ -421,11 +426,8 @@ export default function StockDetail() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* 搜索部分 */}
-      <StockSearch onSelect={setStock} />
-
-      {/* 股票详情部分 */}
-      <StockQuoteCard market={market} code={code} />
+      {/* 搜索 + 当前股票行情 */}
+      <StockPicker />
 
       {/* 周期切换 */}
       <Radio.Group value={select} onChange={(e) => setSelect(e.target.value)}>
@@ -492,17 +494,17 @@ export default function StockDetail() {
                         <span style={{ color: "#999" }}>开盘</span>
                         <span className="text-right">{formatNum(tooltip.open)}</span>
                         <span style={{ color: "#999" }}>最高</span>
-                        <span className="text-right" style={{ color: "#f5222d" }}>
+                        <span className="text-right" style={{ color: UP_COLOR }}>
                           {formatNum(tooltip.high)}
                         </span>
                         <span style={{ color: "#999" }}>最低</span>
-                        <span className="text-right" style={{ color: "#52c41a" }}>
+                        <span className="text-right" style={{ color: DOWN_COLOR }}>
                           {formatNum(tooltip.low)}
                         </span>
                         <span style={{ color: "#999" }}>收盘</span>
                         <span
                           className="text-right"
-                          style={{ color: tooltip.close >= tooltip.open ? "#f5222d" : "#52c41a" }}
+                          style={{ color: tooltip.close >= tooltip.open ? UP_COLOR : DOWN_COLOR }}
                         >
                           {formatNum(tooltip.close)}
                         </span>

@@ -1,5 +1,5 @@
 import { searchStock } from "@/api/stock"
-import type { Market } from "@/utils/tradingTime"
+import { toMarket, type Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
 import { AutoComplete, Spin } from "antd"
 import { useEffect, useState } from "react"
@@ -46,8 +46,7 @@ export default function StockSearch({
   const handleSelect = (value: string) => {
     const target = results.find((item) => item.code === value)
     if (!target) return
-    const nextMarket: Market = target.market === "hk" ? "hk" : target.market === "us" ? "us" : "cn"
-    onSelect(nextMarket, value)
+    onSelect(toMarket(target.market), value)
   }
 
   return (

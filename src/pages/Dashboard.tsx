@@ -1,5 +1,7 @@
-import { getStockQuotes } from "@/api/stock"
-import { getNextTradingTime, isTradingTime, type Market } from "@/utils/tradingTime"
+import { getStockQuotes, type StockQuote } from "@/api/stock"
+import useTradingStatus from "@/hooks/useTradingStatus"
+import { formatNum, formatPercent, getColor } from "@/utils/format"
+import { getNextTradingTime, toMarket, type Market } from "@/utils/tradingTime"
 import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Divider, Row, Spin, Tag, Typography } from "antd"
@@ -7,28 +9,8 @@ import { useNavigate } from "react-router"
 
 const { Text, Title } = Typography
 
-/** 股票数据类型（合并本地和API数据） */
-interface StockData {
-  code: string
-  name: string
-  price?: number
-  changePercent?: number
-  low?: number
-  high?: number
-  prevClose?: number
-}
-
-/** 涨跌颜色 */
-const getColor = (percent?: number) => {
-  if (percent == null) return "inherit"
-  return percent > 0 ? "#f5222d" : percent < 0 ? "#52c41a" : "inherit"
-}
-
-/** 格式化数字 */
-const formatNum = (val?: number) => val?.toFixed(2) ?? "-"
-
-/** 格式化百分比 */
-const formatPercent = (val?: number) => (val != null ? `${val.toFixed(2)}%` : "-")
+/** 指数卡片数据：行情字段来自接口，代码与名称由本地指数列表提供 */
+type StockData = Partial<StockQuote> & { code: string; name: string }
 
 /** A股指数列表 */
 const A_SHARE_INDICES = [
@@ -73,14 +55,6 @@ const MARKET_SECTIONS = [
   { title: "港股通", market: "cn" as Market, codes: HK_CONNECT_INDICES, color: "purple" },
   { title: "美股", market: "us" as Market, codes: US_INDICES, color: "green" },
 ]
-
-/** 根据股票代码前缀判断所属市场：sh000001 -> cn */
-function toMarket(code: string): "cn" | "hk" | "us" {
-  if (code.startsWith("sh") || code.startsWith("sz")) return "cn"
-  if (code.startsWith("hk")) return "hk"
-  if (code.startsWith("us")) return "us"
-  return "cn"
-}
 
 /** 渲染单个指数卡片 */
 function IndexCard({ data, onClick }: { data: StockData; onClick?: () => void }) {
@@ -128,12 +102,12 @@ function MarketSection({
   const navigate = useNavigate()
   const setStock = useStock((s) => s.setStock)
   const codeList = codes.map((c) => c.code)
-  const trading = isTradingTime(market)
+  const { trading, refetchInterval } = useTradingStatus(market)
 
   const { data, isLoading } = useQuery({
     queryKey: ["stockQuotes", title],
     queryFn: () => getStockQuotes(market, codeList),
-    refetchInterval: trading ? 5_000 : false,
+    refetchInterval,
   })
 
   // 合并 API 返回数据与本地代码列表

@@ -1,10 +1,15 @@
 /** 市场名称映射 */
 export const MARKET_LABEL: Record<string, string> = { cn: "沪深", hk: "港股", us: "美股" }
 
+/** 涨（红） */
+export const UP_COLOR = "#f5222d"
+/** 跌（绿） */
+export const DOWN_COLOR = "#52c41a"
+
 /** 涨跌颜色（红涨绿跌） */
 export function getColor(change?: number) {
   if (change == null) return "inherit"
-  return change > 0 ? "#f5222d" : change < 0 ? "#52c41a" : "inherit"
+  return change > 0 ? UP_COLOR : change < 0 ? DOWN_COLOR : "inherit"
 }
 
 /** 格式化金额（万/亿） */

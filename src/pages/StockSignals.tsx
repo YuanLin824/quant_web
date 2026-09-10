@@ -1,7 +1,6 @@
 import { getStockSignals, type StockSignal } from "@/api/stock"
-import StockQuoteCard from "@/components/StockQuoteCard"
-import StockSearch from "@/components/StockSearch"
-import { formatNum } from "@/utils/format"
+import StockPicker from "@/components/StockPicker"
+import { DOWN_COLOR, formatNum, UP_COLOR } from "@/utils/format"
 import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Empty, Radio, Spin, Table, Tag, Typography } from "antd"
@@ -26,42 +25,42 @@ const SIGNAL_CONF: Record<
     label: "MA金叉",
     color: "red",
     advice: "建议买入",
-    adviceColor: "#f5222d",
+    adviceColor: UP_COLOR,
     desc: "短期均线上穿长期均线，趋势转强",
   },
   ma_death_cross: {
     label: "MA死叉",
     color: "volcano",
     advice: "建议卖出",
-    adviceColor: "#52c41a",
+    adviceColor: DOWN_COLOR,
     desc: "短期均线下穿长期均线，趋势转弱",
   },
   macd_golden_cross: {
     label: "MACD金叉",
     color: "red",
     advice: "建议买入",
-    adviceColor: "#f5222d",
+    adviceColor: UP_COLOR,
     desc: "DIF 线上穿 DEA 线，多头动能增强",
   },
   macd_death_cross: {
     label: "MACD死叉",
     color: "volcano",
     advice: "建议卖出",
-    adviceColor: "#52c41a",
+    adviceColor: DOWN_COLOR,
     desc: "DIF 线下穿 DEA 线，空头动能增强",
   },
   kdj_golden_cross: {
     label: "KDJ金叉",
     color: "red",
     advice: "建议买入",
-    adviceColor: "#f5222d",
+    adviceColor: UP_COLOR,
     desc: "K 线上穿 D 线，短线看多",
   },
   kdj_death_cross: {
     label: "KDJ死叉",
     color: "volcano",
     advice: "建议卖出",
-    adviceColor: "#52c41a",
+    adviceColor: DOWN_COLOR,
     desc: "K 线下穿 D 线，短线看空",
   },
   kdj_overbought: {
@@ -96,28 +95,28 @@ const SIGNAL_CONF: Record<
     label: "突破布林上轨",
     color: "red",
     advice: "看多持有",
-    adviceColor: "#f5222d",
+    adviceColor: UP_COLOR,
     desc: "价格突破布林带上轨，走势强势",
   },
   boll_break_lower: {
     label: "跌破布林下轨",
     color: "volcano",
     advice: "建议卖出",
-    adviceColor: "#52c41a",
+    adviceColor: DOWN_COLOR,
     desc: "价格跌破布林带下轨，走势弱势",
   },
   sar_reversal_up: {
     label: "SAR反转向上",
     color: "red",
     advice: "建议买入",
-    adviceColor: "#f5222d",
+    adviceColor: UP_COLOR,
     desc: "SAR 由空转多，趋势反转向上",
   },
   sar_reversal_down: {
     label: "SAR反转向下",
     color: "volcano",
     advice: "建议卖出",
-    adviceColor: "#52c41a",
+    adviceColor: DOWN_COLOR,
     desc: "SAR 由多转空，趋势反转向下",
   },
 }
@@ -187,7 +186,6 @@ export default function StockSignals() {
   // 当前股票由 zustand 管理（本地持久化），与详情页共享
   const market = useStock((s) => s.market)
   const code = useStock((s) => s.code)
-  const setStock = useStock((s) => s.setStock)
   const [period, setPeriod] = useState("daily")
 
   const { data, isLoading } = useQuery({
@@ -199,11 +197,8 @@ export default function StockSignals() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* 搜索部分 */}
-      <StockSearch onSelect={setStock} />
-
-      {/* 股票详情部分 */}
-      <StockQuoteCard market={market} code={code} />
+      {/* 搜索 + 当前股票行情 */}
+      <StockPicker />
 
       {/* 指标信号详情 */}
       <Card
