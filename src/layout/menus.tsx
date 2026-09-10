@@ -1,4 +1,4 @@
-import { DashboardOutlined } from "@ant-design/icons"
+import { DashboardOutlined, LineChartOutlined } from "@ant-design/icons"
 import type { BreadcrumbProps, MenuProps } from "antd"
 
 export interface MenuItem {
@@ -10,6 +10,7 @@ export interface MenuItem {
 /** 主导航配置：key 即路由路径，Header/Sider/Breadcrumb 共用 */
 export const MENU_ITEMS: MenuItem[] = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "仪表盘" },
+  { key: "/stock-detail", icon: <LineChartOutlined />, label: "股票详情" },
 ]
 
 /** 转为 antd Menu items */

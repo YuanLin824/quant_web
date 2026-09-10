@@ -9,6 +9,7 @@
   - `/register` — 注册页
   - `/` — 重定向到 `/dashboard`
   - `/dashboard` — 仪表盘页（需认证）
+  - `/stock-detail` — 股票详情页（需认证，query 参数：code/market）
   - `*` — 404页面
 
 ## 状态管理
@@ -24,17 +25,20 @@
   - `getStockQuotes(market, codes)` — 批量获取行情（POST `/stock-sdk/quotes/:market`）
   - `getStockQuote(market, code)` — 单只获取行情（GET `/stock-api/quote/:market/:code`）
   - `getFundQuotes(codes)` — 批量获取基金行情（POST `/stock-sdk/funds`）
+  - `getStockKLine(market, code, period)` — 历史K线（GET `/stock-sdk/kline/:market/:code`）
+  - `getMinuteStockKLine(market, code, period)` — 分钟K线（GET `/stock-sdk/kline/:market/:code/minute`）
 
 ## 布局
 
 - `src/layout/BaseLayout.tsx` — 已认证页面外壳：顶部栏（Logo + 主题切换 + 用户下拉菜单）、侧边栏菜单、面包屑、内容区
 - `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径：
   - `/dashboard` — 仪表盘
+  - `/stock-detail` — 股票详情
 - `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes
 
 ## 工具函数
 
-- `src/utils/tradingTime.ts` — 交易时间判断工具（isTradingTime、getNextTradingTime），支持 A股、港股、美股
+- `src/utils/tradingTime.ts` — 交易时间判断工具（isTradingTime、getNextTradingTime），Market 类型为 `cn`/`hk`/`us`
 
 ## 主题
 

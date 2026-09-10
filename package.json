@@ -22,6 +22,7 @@
     "antd": "^6.6.1",
     "axios": "^1.20.0",
     "blanksheet": "^1.0.2",
+    "dayjs": "^1.11.23",
     "lightweight-charts": "^5.2.1",
     "next-themes": "^0.4.6",
     "react": "^19.2.8",

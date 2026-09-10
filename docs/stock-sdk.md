@@ -363,3 +363,364 @@ curl http://localhost:3001/api/stock-sdk/search?keyword=沪深300 \
 curl http://localhost:3001/api/stock-sdk/search?keyword=易方达 \
   -H "Authorization: Bearer <access_token>"
 ```
+
+---
+
+## 获取全部市场行情
+
+获取指定市场的全部股票行情数据。
+
+**请求**
+
+```
+GET /api/stock-sdk/batch/:market
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**路径参数**
+
+| 参数   | 类型   | 必填 | 说明                                          |
+| ------ | ------ | ---- | --------------------------------------------- |
+| market | string | 是   | 市场类型: `cn`(A股) / `hk`(港股) / `us`(美股) |
+
+**查询参数**
+
+| 参数        | 类型   | 必填 | 说明                         |
+| ----------- | ------ | ---- | ---------------------------- |
+| batchSize   | number | 否   | 单次请求的股票数量，默认 500 |
+| concurrency | number | 否   | 最大并发请求数，默认 7       |
+
+**响应**
+
+返回 stock-sdk 原始格式的行情数组。
+
+**示例**
+
+```bash
+# 获取全部 A 股行情
+curl http://localhost:3001/api/stock-sdk/batch/cn \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取全部港股行情
+curl http://localhost:3001/api/stock-sdk/batch/hk \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取全部美股行情（指定批次大小和并发数）
+curl http://localhost:3001/api/stock-sdk/batch/us?batchSize=100&concurrency=5 \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+## 按代码批量获取行情
+
+根据股票代码批量获取行情数据。
+
+**请求**
+
+```
+POST /api/stock-sdk/batch
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**请求体**
+
+| 参数        | 类型     | 必填 | 说明               |
+| ----------- | -------- | ---- | ------------------ |
+| codes       | string[] | 是   | 股票代码数组       |
+| batchSize   | number   | 否   | 单次请求的股票数量 |
+| concurrency | number   | 否   | 最大并发请求数     |
+
+**请求示例**
+
+```json
+{
+  "codes": ["sh600519", "sz000651", "hk00700", "usAAPL"],
+  "batchSize": 100,
+  "concurrency": 5
+}
+```
+
+**响应**
+
+返回 stock-sdk 原始格式的行情数组（FullQuote）。
+
+**示例**
+
+```bash
+# 按代码批量获取行情
+curl -X POST http://localhost:3001/api/stock-sdk/batch \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"codes": ["sh600519", "sz000651", "hk00700", "usAAPL"]}'
+```
+
+---
+
+## 获取K线数据
+
+获取指定股票的历史K线、分钟K线或带技术指标的K线数据。根据参数自动判断：
+
+- 传入 `indicators` → 带技术指标K线（调用 `withIndicators`）
+- `period` 为 `daily` / `weekly` / `monthly` → 历史K线
+- `period` 为 `1` / `5` / `15` / `30` / `60` → 分钟K线
+
+**请求**
+
+```
+GET /api/stock-sdk/kline/:market/:code
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**路径参数**
+
+| 参数   | 类型   | 必填 | 说明                                          |
+| ------ | ------ | ---- | --------------------------------------------- |
+| market | string | 是   | 市场类型: `cn`(A股) / `hk`(港股) / `us`(美股) |
+| code   | string | 是   | 股票代码                                      |
+
+**查询参数**
+
+| 参数       | 类型   | 必填 | 说明                                                                                                           |
+| ---------- | ------ | ---- | -------------------------------------------------------------------------------------------------------------- |
+| period     | string | 否   | K线周期: `daily`(日K) / `weekly`(周K) / `monthly`(月K) 或 分钟K线 `1` / `5` / `15` / `30` / `60`，默认 `daily` |
+| adjust     | string | 否   | 复权类型: `qfq`(前复权) / `hfq`(后复权) / 空字符串(不复权)，默认 `qfq`                                         |
+| startDate  | string | 否   | 开始日期 (YYYYMMDD 或 YYYY-MM-DD)                                                                              |
+| endDate    | string | 否   | 结束日期 (YYYYMMDD 或 YYYY-MM-DD)                                                                              |
+| indicators | object | 否   | 指标配置 JSON 对象，传入时自动调用带指标K线接口                                                                |
+
+**indicators 指标配置**
+
+| 指标 | 类型     | 说明                              |
+| ---- | -------- | --------------------------------- |
+| ma   | number[] | MA 均线周期数组，如 `[5, 10, 20]` |
+| macd | boolean  | 是否启用 MACD                     |
+| boll | boolean  | 是否启用布林带                    |
+| kdj  | boolean  | 是否启用 KDJ                      |
+| rsi  | boolean  | 是否启用 RSI                      |
+| wr   | boolean  | 是否启用威廉指标                  |
+| bias | boolean  | 是否启用乖离率                    |
+| cci  | boolean  | 是否启用 CCI                      |
+| atr  | boolean  | 是否启用 ATR                      |
+| obv  | boolean  | 是否启用 OBV                      |
+| roc  | boolean  | 是否启用 ROC                      |
+| dmi  | boolean  | 是否启用 DMI                      |
+| sar  | boolean  | 是否启用 SAR                      |
+| kc   | boolean  | 是否启用 KC                       |
+
+**响应**
+
+返回 stock-sdk 原始格式的 K 线数组。
+
+**示例**
+
+```bash
+# 获取A股日K线
+curl http://localhost:3001/api/stock-sdk/kline/cn/600519 \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取港股周K线
+curl http://localhost:3001/api/stock-sdk/kline/hk/00700?period=weekly \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取美股月K线
+curl http://localhost:3001/api/stock-sdk/kline/us/AAPL?period=monthly \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取A股5分钟K线
+curl http://localhost:3001/api/stock-sdk/kline/cn/600519?period=5 \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取港股15分钟K线
+curl http://localhost:3001/api/stock-sdk/kline/hk/00700?period=15 \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取美股60分钟K线
+curl http://localhost:3001/api/stock-sdk/kline/us/AAPL?period=60 \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取指定日期范围的K线
+curl http://localhost:3001/api/stock-sdk/kline/cn/600519?startDate=20240101&endDate=20240131 \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取带 MA 均线的K线
+curl "http://localhost:3001/api/stock-sdk/kline/cn/600519?period=daily&indicators=%7B%22ma%22%3A%5B5%2C10%2C20%5D%7D" \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取带 MACD 的K线
+curl "http://localhost:3001/api/stock-sdk/kline/cn/600519?indicators=%7B%22macd%22%3Atrue%7D" \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取带多个指标的K线
+curl "http://localhost:3001/api/stock-sdk/kline/cn/600519?indicators=%7B%22ma%22%3A%5B5%2C10%2C20%5D%2C%22macd%22%3Atrue%2C%22boll%22%3Atrue%2C%22rsi%22%3Atrue%7D" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+## 获取大单数据
+
+获取指定股票的大单成交数据。
+
+**请求**
+
+```
+POST /api/stock-sdk/large-order
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**请求体**
+
+| 参数  | 类型     | 必填 | 说明         |
+| ----- | -------- | ---- | ------------ |
+| codes | string[] | 是   | 股票代码数组 |
+
+**请求示例**
+
+```json
+{
+  "codes": ["600519", "000651"]
+}
+```
+
+**响应**
+
+返回 stock-sdk 原始格式的大单数据数组。
+
+**示例**
+
+```bash
+# 获取大单数据
+curl -X POST http://localhost:3001/api/stock-sdk/large-order \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"codes": ["600519", "000651"]}'
+```
+
+---
+
+## 获取代码列表
+
+获取指定市场的股票/基金代码列表。
+
+**请求**
+
+```
+GET /api/stock-sdk/codes/:market
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**路径参数**
+
+| 参数   | 类型   | 必填 | 说明                                                         |
+| ------ | ------ | ---- | ------------------------------------------------------------ |
+| market | string | 是   | 市场类型: `cn`(A股) / `hk`(港股) / `us`(美股) / `fund`(基金) |
+
+**响应**
+
+返回代码字符串数组。
+
+**示例**
+
+```bash
+# 获取A股代码列表
+curl http://localhost:3001/api/stock-sdk/codes/cn \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取港股代码列表
+curl http://localhost:3001/api/stock-sdk/codes/hk \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取美股代码列表
+curl http://localhost:3001/api/stock-sdk/codes/us \
+  -H "Authorization: Bearer <access_token>"
+
+# 获取基金代码列表
+curl http://localhost:3001/api/stock-sdk/codes/fund \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+## 获取K线信号
+
+获取指定股票的K线技术分析信号（金叉/死叉、超买/超卖等）。
+
+**请求**
+
+```
+GET /api/stock-sdk/kline/:market/:code/signals
+Authorization: Bearer <access_token>
+```
+
+**请求头**
+
+| 参数          | 类型   | 必填 | 说明                  |
+| ------------- | ------ | ---- | --------------------- |
+| Authorization | string | 是   | Bearer + access_token |
+
+**路径参数**
+
+| 参数   | 类型   | 必填 | 说明                                          |
+| ------ | ------ | ---- | --------------------------------------------- |
+| market | string | 是   | 市场类型: `cn`(A股) / `hk`(港股) / `us`(美股) |
+| code   | string | 是   | 股票代码                                      |
+
+**查询参数**
+
+| 参数      | 类型   | 必填 | 说明                                                  |
+| --------- | ------ | ---- | ----------------------------------------------------- |
+| period    | string | 否   | K线周期: `daily` / `weekly` / `monthly`，默认 `daily` |
+| adjust    | string | 否   | 复权类型: `qfq` / `hfq` / 空字符串                    |
+| startDate | string | 否   | 开始日期 (YYYYMMDD 或 YYYY-MM-DD)                     |
+| endDate   | string | 否   | 结束日期 (YYYYMMDD 或 YYYY-MM-DD)                     |
+| maFast    | number | 否   | MA 快线周期，默认 5                                   |
+| maSlow    | number | 否   | MA 慢线周期，默认 20                                  |
+
+**响应**
+
+返回 K 线信号数组，每个信号包含：
+
+- `type` - 信号类型（MA/MACD/KDJ 金叉死叉、超买超卖等）
+- `date` - 信号日期
+- `timestamp` - 时间戳
+- `close` - 收盘价
+- `detail` - 附加信息
+
+**示例**
+
+```bash
+# 获取K线信号
+curl http://localhost:3001/api/stock-sdk/kline/cn/600519/signals?period=daily&maFast=5&maSlow=20 \
+  -H "Authorization: Bearer <access_token>"
+```

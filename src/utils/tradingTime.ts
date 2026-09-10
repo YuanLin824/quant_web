@@ -4,7 +4,7 @@
  */
 
 /** 市场类型 */
-export type Market = "A" | "HK" | "HKConnect" | "US"
+export type Market = "cn" | "hk" | "us"
 
 /**
  * 判断是否在交易时间内
@@ -18,12 +18,11 @@ export function isTradingTime(market: Market, date: Date = new Date()): boolean 
   if (day === 0 || day === 6) return false
 
   switch (market) {
-    case "A":
-    case "HKConnect":
+    case "cn":
       return isAShareTradingTime(date)
-    case "HK":
+    case "hk":
       return isHKTradingTime(date)
-    case "US":
+    case "us":
       return isUSTradingTime(date)
     default:
       return false
@@ -110,20 +109,19 @@ export function getNextTradingTime(market: Market): string {
   const time = hours * 60 + minutes
 
   switch (market) {
-    case "A":
-    case "HKConnect":
+    case "cn":
       if (day === 0 || day === 6) return "下周一 9:30"
       if (time < 9 * 60 + 30) return "今日 9:30"
       if (time > 15 * 60) return "明日 9:30"
       if (time >= 11 * 60 + 30 && time < 13 * 60) return "今日 13:00"
       return "今日 9:30"
-    case "HK":
+    case "hk":
       if (day === 0 || day === 6) return "下周一 9:30"
       if (time < 9 * 60 + 30) return "今日 9:30"
       if (time > 16 * 60) return "明日 9:30"
       if (time >= 12 * 60 && time < 13 * 60) return "今日 13:00"
       return "今日 9:30"
-    case "US":
+    case "us":
       if (day === 0 || day === 6) return "下周一 21:30"
       // 美股开盘时间约为北京时间21:30（夏令时）或22:30（冬令时）
       return "今日 21:30"

@@ -2,6 +2,7 @@ import { getStockQuotes, type StockQuote } from "@/api/stock"
 import { getNextTradingTime, isTradingTime, type Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Divider, Row, Spin, Tag, Typography } from "antd"
+import { useNavigate } from "react-router"
 
 const { Text, Title } = Typography
 
@@ -14,14 +15,6 @@ interface StockData {
   low?: number
   high?: number
   prevClose?: number
-}
-
-/** 市场类型映射 */
-const MARKET_MAP: Record<Market, string> = {
-  A: "cn",
-  HK: "hk",
-  HKConnect: "cn",
-  US: "us",
 }
 
 /** 涨跌颜色 */
@@ -74,18 +67,26 @@ const US_INDICES = [
 
 /** 市场板块配置 */
 const MARKET_SECTIONS = [
-  { title: "A股", market: "A" as Market, codes: A_SHARE_INDICES, color: "red" },
-  { title: "港股", market: "HK" as Market, codes: HK_INDICES, color: "blue" },
-  { title: "港股通", market: "HKConnect" as Market, codes: HK_CONNECT_INDICES, color: "purple" },
-  { title: "美股", market: "US" as Market, codes: US_INDICES, color: "green" },
+  { title: "A股", market: "cn" as Market, codes: A_SHARE_INDICES, color: "red" },
+  { title: "港股", market: "hk" as Market, codes: HK_INDICES, color: "blue" },
+  { title: "港股通", market: "cn" as Market, codes: HK_CONNECT_INDICES, color: "purple" },
+  { title: "美股", market: "us" as Market, codes: US_INDICES, color: "green" },
 ]
 
+/** 根据代码生成详情页跳转链接：sh000001 -> market=cn&code=000001 */
+function toMarket(code: string): "cn" | "hk" | "us" {
+  if (code.startsWith("sh") || code.startsWith("sz")) return "cn"
+  if (code.startsWith("hk")) return "hk"
+  if (code.startsWith("us")) return "us"
+  return "cn"
+}
+
 /** 渲染单个指数卡片 */
-function IndexCard({ data }: { data: StockData }) {
+function IndexCard({ data, onClick }: { data: StockData; onClick?: () => void }) {
   const color = getColor(data.changePercent)
 
   return (
-    <Card size="small" hoverable>
+    <Card size="small" hoverable onClick={onClick} className="cursor-pointer">
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <Text strong style={{ fontSize: 14 }}>
@@ -123,12 +124,13 @@ function MarketSection({
   codes: { code: string; name: string }[]
   color: string
 }) {
+  const navigate = useNavigate()
   const codeList = codes.map((c) => c.code)
   const trading = isTradingTime(market)
 
   const { data, isLoading } = useQuery({
     queryKey: ["stockQuotes", title],
-    queryFn: () => getStockQuotes(MARKET_MAP[market], codeList),
+    queryFn: () => getStockQuotes(market, codeList),
     refetchInterval: trading ? 5_000 : false,
   })
 
@@ -138,6 +140,10 @@ function MarketSection({
     const quote = quotes.find((q) => item.name === q.name)
     return { ...quote, ...item }
   })
+
+  const handleCardClick = (item: StockData) => {
+    navigate(`/stock-detail?code=${item.code}&market=${toMarket(item.code)}`)
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -156,7 +162,7 @@ function MarketSection({
         <Row gutter={[12, 12]}>
           {dataSource.map((item) => (
             <Col key={item.code} xs={24} lg={12} xl={8} xxl={6}>
-              <IndexCard data={item} />
+              <IndexCard data={item} onClick={() => handleCardClick(item)} />
             </Col>
           ))}
         </Row>

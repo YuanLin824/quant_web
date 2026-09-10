@@ -4,6 +4,7 @@ import ErrorPage from "@/pages/ErrorPage"
 import Login from "@/pages/Login"
 import NotFound from "@/pages/NotFound"
 import Register from "@/pages/Register"
+import StockDetail from "@/pages/StockDetail"
 import { queryClient } from "@/queryClient"
 import useAuth from "@/zustand/useAuth"
 import { QueryClientProvider } from "@tanstack/react-query"
@@ -58,6 +59,7 @@ export default function App() {
               <Route element={<BaseLayout />} errorElement={<ErrorPage />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/stock-detail" element={<StockDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>

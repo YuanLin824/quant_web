@@ -9,6 +9,7 @@
 - [x] 404 页面
 - [x] 错误兜底页面
 - [x] 仪表盘页
+- [x] 股票详情页
 - [ ] 系统管理
   - [ ] 用户管理
   - [ ] 角色管理
@@ -50,6 +51,19 @@
   - 美股: 周一至周五 9:30-16:00 (美东时间)
 - 不在交易时间内显示休市提示及下次开盘时间
 - 使用 React Query 轮询获取数据（交易时间内每5秒）
+- 点击指数卡片跳转到股票详情页
+
+## 股票详情页
+
+路由: `/stock-detail?code=&market=`（code 为完整代码如 `sh000001`，market 为 cn/hk/us）
+
+### 功能要求
+
+- 读取 URL 参数（code/market）初始化页面
+- 通过 `getStockQuotes` 获取行情并显示股票名称
+- 交易时间内每5秒轮询行情
+- 图表周期切换（Radio 按钮）：分时、五日、日K、周K、月K、1分、5分、15分、30分、60分
+- 面包屑导航：QUANT > 股票详情
 
 ## 已完成功能
 
@@ -64,7 +78,7 @@
 
 - 统一请求封装（src/utils/request.ts）
 - 认证接口（login、register、refresh、logout、getProfile）
-- 股票行情接口（getStockQuotes、getStockQuote、getFundQuotes）
+- 股票行情接口（getStockQuotes、getStockQuote、getFundQuotes、getStockKLine、getMinuteStockKLine）
 
 ### 主题系统
 
@@ -78,4 +92,5 @@
 - `/login` - 登录页
 - `/register` - 注册页
 - `/dashboard` - 仪表盘页
+- `/stock-detail` - 股票详情页
 - `*` - 404页面
