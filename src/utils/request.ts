@@ -2,12 +2,13 @@ import useAuth from "@/zustand/useAuth"
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios"
 import toast from "react-hot-toast"
 
+/** 接口基础路径（.env 中配置，未配置时回退到本地代理路径） */
+const BASE_URL = import.meta.env.VITE_BASE_URL || "/api"
+
 const request = axios.create({
-  baseURL: "/api",
+  baseURL: BASE_URL,
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 })
 
 /** 是否正在刷新token */
@@ -29,20 +30,14 @@ function onRefreshed(token: string) {
 request.interceptors.request.use(
   (config) => {
     const token = useAuth.getState().accessToken
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 request.interceptors.response.use(
-  (response) => {
-    return response.data
-  },
+  (response) => response.data,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
@@ -67,21 +62,18 @@ request.interceptors.response.use(
 
       try {
         const { refreshToken } = useAuth.getState()
-        if (!refreshToken) {
-          throw new Error("没有refreshToken")
-        }
+        if (!refreshToken) throw new Error("没有refreshToken")
 
         // 调用刷新token接口
         const response = await axios.post<{
           code: number
           data: { accessToken: string; refreshToken: string }
         }>(
-          "/api/auth/refresh",
+          "/auth/refresh",
           {},
           {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
+            baseURL: BASE_URL,
+            headers: { Authorization: `Bearer ${refreshToken}` },
           }
         )
 
