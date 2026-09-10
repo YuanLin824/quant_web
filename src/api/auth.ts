@@ -18,19 +18,3 @@ export function login(params: LoginParams) {
 export function register(params: LoginParams) {
   return request.post<LoginResult>("/auth/register", params)
 }
-
-export function refresh(refreshToken: string) {
-  return request.post<LoginResult>("/auth/refresh", null, {
-    headers: {
-      Authorization: `Bearer ${refreshToken}`,
-    },
-  })
-}
-
-export function logout(refreshToken: string) {
-  return request.post("/auth/logout", { refreshToken })
-}
-
-export function getProfile() {
-  return request.get("/auth/profile")
-}
