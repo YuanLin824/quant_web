@@ -1,4 +1,4 @@
-import { getStockQuotes, type StockQuote } from "@/api/stock"
+import { getStockQuotes } from "@/api/stock"
 import { formatAmount, formatNum, formatPercent, getColor, MARKET_LABEL } from "@/utils/format"
 import { isTradingTime, type Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
@@ -19,7 +19,7 @@ export default function StockQuoteCard({ market, code }: { market: Market; code:
     refetchInterval: trading ? 5_000 : false,
   })
 
-  const stock = (data as unknown as { code: number; data: StockQuote[] })?.data?.[0]
+  const stock = data?.[0]
   const changeColor = getColor(stock?.changePercent)
 
   return (

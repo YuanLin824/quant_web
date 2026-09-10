@@ -147,7 +147,7 @@ export default function StockDetail() {
     queryFn: () => {
       // 五日：取最近 5 个交易日的一分钟数据
       if (select === "5d") {
-        return getStockKLine(market, code, "1", getDateBefore(10))
+        return getStockKLine(market, code, "1", getDateBefore(7))
       }
       return getStockKLine(market, code, CHART_OPTIONS_MAP[select] || select)
     },
@@ -279,7 +279,7 @@ export default function StockDetail() {
     chart.priceScale("right", 1).applyOptions({ scaleMargins: { top: 0.1, bottom: 0 } })
 
     // 设置数据
-    const list = (klineData as unknown as { code: number; data: KLineDto[] })?.data ?? []
+    const list = klineData ?? []
     if (list.length > 0) {
       if (lineSeries) {
         // 分时图：使用 open 字段绘制折线

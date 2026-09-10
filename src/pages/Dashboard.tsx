@@ -1,4 +1,4 @@
-import { getStockQuotes, type StockQuote } from "@/api/stock"
+import { getStockQuotes } from "@/api/stock"
 import { getNextTradingTime, isTradingTime, type Market } from "@/utils/tradingTime"
 import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
@@ -137,7 +137,7 @@ function MarketSection({
   })
 
   // 合并 API 返回数据与本地代码列表
-  const quotes = (data as unknown as { code: number; data: StockQuote[] })?.data ?? []
+  const quotes = data ?? []
   const dataSource = codes.map((item) => {
     const quote = quotes.find((q) => item.name === q.name)
     return { ...quote, ...item }

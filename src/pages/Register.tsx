@@ -20,7 +20,7 @@ export default function Register() {
   const mutation = useMutation({
     mutationFn: register,
     onSuccess: (data) => {
-      setAuth(data.data.accessToken, data.data.refreshToken, data.data.username)
+      setAuth(data.accessToken, data.refreshToken, data.username)
       toast.success("注册成功")
       navigate("/")
     },

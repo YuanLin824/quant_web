@@ -1,4 +1,4 @@
-import { searchStock, type SearchResult } from "@/api/stock"
+import { searchStock } from "@/api/stock"
 import type { Market } from "@/utils/tradingTime"
 import { useQuery } from "@tanstack/react-query"
 import { AutoComplete, Spin } from "antd"
@@ -30,7 +30,7 @@ export default function StockSearch({
   })
 
   // 过滤基金，只保留股票/指数
-  const results = ((data as unknown as { code: number; data: SearchResult[] })?.data ?? [])
+  const results = (data ?? [])
     .filter((item) => item.category !== "fund")
     // 美股代码去除 `.` 及后缀（如 usaapl.oq -> usaapl）
     .map((item) => ({

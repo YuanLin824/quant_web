@@ -195,9 +195,7 @@ export default function StockSignals() {
     queryFn: () => getStockSignals(market, code, period),
   })
   // 最新的信号在前
-  const signals = [
-    ...((data as unknown as { code: number; data: StockSignal[] })?.data ?? []),
-  ].reverse()
+  const signals = [...(data ?? [])].reverse()
 
   return (
     <div className="flex flex-col gap-3">

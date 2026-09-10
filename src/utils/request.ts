@@ -1,5 +1,9 @@
 import useAuth from "@/zustand/useAuth"
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios"
+import axios, {
+  type AxiosError,
+  type AxiosRequestConfig,
+  type InternalAxiosRequestConfig,
+} from "axios"
 import toast from "react-hot-toast"
 
 /** 接口基础路径（.env 中配置，未配置时回退到本地代理路径） */
@@ -37,7 +41,8 @@ request.interceptors.request.use(
 )
 
 request.interceptors.response.use(
-  (response) => response.data,
+  // 解包统一响应结构 { code, message, data }，直接返回 data
+  (response) => response.data.data,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
@@ -105,4 +110,13 @@ request.interceptors.response.use(
   }
 )
 
-export default request
+/** 解包后的请求实例类型：响应拦截器已解包 { code, message, data }，直接返回 data */
+interface UnwrappedRequest {
+  get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
+  post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+  put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+  patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+  delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
+}
+
+export default request as unknown as UnwrappedRequest
