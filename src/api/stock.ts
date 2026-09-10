@@ -52,7 +52,10 @@ export interface KLineDto {
   code?: string
   name?: string
   date?: string
+  /** 分钟K线（含分时）的时间字段，如 "2026-09-10 09:30" */
+  time?: string
   timestamp?: number
+  tz?: string
   open: number
   close: number
   high: number
@@ -79,7 +82,32 @@ export function getFundQuotes(codes: string[]) {
   return request.post<FundQuote[]>("/stock-sdk/funds", { codes })
 }
 
-/** 获取历史K线数据（stock-sdk） */
-export function getStockKLine(market: string, code: string, period: string = "daily") {
-  return request.get<KLineDto[]>(`/stock-sdk/kline/${market}/${code}`, { params: { period } })
+/** 获取历史K线数据（stock-sdk）
+ * @param startDate 开始日期，格式 YYYYMMDD 或 YYYY-MM-DD（可选）
+ * @param endDate 结束日期，格式 YYYYMMDD 或 YYYY-MM-DD（可选）
+ */
+export function getStockKLine(
+  market: string,
+  code: string,
+  period: string = "daily",
+  startDate?: string,
+  endDate?: string
+) {
+  return request.get<KLineDto[]>(`/stock-sdk/kline/${market}/${code}`, {
+    params: { period, startDate, endDate },
+  })
+}
+
+/** 搜索结果接口 */
+export interface SearchResult {
+  code: string
+  name: string
+  market: string
+  type: string
+  category?: "stock" | "index" | "fund"
+}
+
+/** 搜索股票/指数/基金（stock-sdk） */
+export function searchStock(keyword: string) {
+  return request.get<SearchResult[]>("/stock-sdk/search", { params: { keyword } })
 }
