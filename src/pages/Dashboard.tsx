@@ -1,5 +1,6 @@
 import { getStockQuotes, type StockQuote } from "@/api/stock"
 import { getNextTradingTime, isTradingTime, type Market } from "@/utils/tradingTime"
+import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Divider, Row, Spin, Tag, Typography } from "antd"
 import { useNavigate } from "react-router"
@@ -73,7 +74,7 @@ const MARKET_SECTIONS = [
   { title: "美股", market: "us" as Market, codes: US_INDICES, color: "green" },
 ]
 
-/** 根据代码生成详情页跳转链接：sh000001 -> market=cn&code=000001 */
+/** 根据股票代码前缀判断所属市场：sh000001 -> cn */
 function toMarket(code: string): "cn" | "hk" | "us" {
   if (code.startsWith("sh") || code.startsWith("sz")) return "cn"
   if (code.startsWith("hk")) return "hk"
@@ -125,6 +126,7 @@ function MarketSection({
   color: string
 }) {
   const navigate = useNavigate()
+  const setStock = useStock((s) => s.setStock)
   const codeList = codes.map((c) => c.code)
   const trading = isTradingTime(market)
 
@@ -142,7 +144,9 @@ function MarketSection({
   })
 
   const handleCardClick = (item: StockData) => {
-    navigate(`/stock-detail?code=${item.code}&market=${toMarket(item.code)}`)
+    // 保存到 zustand（本地持久化），详情页从此读取
+    setStock(toMarket(item.code), item.code)
+    navigate("/stock-detail")
   }
 
   return (

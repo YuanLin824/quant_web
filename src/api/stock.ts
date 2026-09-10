@@ -111,3 +111,31 @@ export interface SearchResult {
 export function searchStock(keyword: string) {
   return request.get<SearchResult[]>("/stock-sdk/search", { params: { keyword } })
 }
+
+/** 指标信号接口 */
+export interface StockSignal {
+  /** 信号类型，如 ma_golden_cross / macd_death_cross / rsi_overbought */
+  type: string
+  date: string
+  timestamp: number
+  close: number
+  /** 附加信息，如 { fast: 5, slow: 20 } / { rsi: 81.6 } */
+  detail?: Record<string, number>
+}
+
+/** 获取K线技术指标信号（stock-sdk）
+ * @param period K线周期: daily / weekly / monthly，默认 daily
+ * @param maFast MA 快线周期，默认 5
+ * @param maSlow MA 慢线周期，默认 20
+ */
+export function getStockSignals(
+  market: string,
+  code: string,
+  period: string = "daily",
+  maFast: number = 5,
+  maSlow: number = 20
+) {
+  return request.get<StockSignal[]>(`/stock-sdk/kline/${market}/${code}/signals`, {
+    params: { period, maFast, maSlow },
+  })
+}

@@ -1,14 +1,10 @@
-import {
-  getStockKLine,
-  getStockQuotes,
-  searchStock,
-  type KLineDto,
-  type SearchResult,
-  type StockQuote,
-} from "@/api/stock"
-import { isTradingTime, type Market } from "@/utils/tradingTime"
+import { getStockKLine, type KLineDto } from "@/api/stock"
+import StockQuoteCard from "@/components/StockQuoteCard"
+import StockSearch from "@/components/StockSearch"
+import { formatAmount, formatNum, formatPercent, getColor } from "@/utils/format"
+import useStock from "@/zustand/useStock"
 import { useQuery } from "@tanstack/react-query"
-import { AutoComplete, Card, Radio, Spin, Tag, Typography } from "antd"
+import { Card, Radio, Spin } from "antd"
 import {
   CandlestickSeries,
   createChart,
@@ -21,14 +17,12 @@ import {
 } from "lightweight-charts"
 import { useTheme } from "next-themes"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { useSearchParams } from "react-router"
-
-const { Text, Title } = Typography
 
 /** 图表周期选项 */
 const CHART_OPTIONS = [
   { label: "分时", value: "trend" },
-  { label: "五日", value: "5d" },
+  // 五日分时暂不展示（相关逻辑保留，取消注释即可恢复）
+  // { label: "五日", value: "5d" },
   { label: "日K", value: "daily" },
   { label: "周K", value: "weekly" },
   { label: "月K", value: "monthly" },
@@ -41,9 +35,6 @@ const CHART_OPTIONS = [
 
 /** 图表周期对应的接口参数 */
 const CHART_OPTIONS_MAP: Record<string, string> = { trend: "1" }
-
-/** 市场名称映射 */
-const MARKET_LABEL: Record<string, string> = { cn: "沪深", hk: "港股", us: "美股" }
 
 /** 默认显示最新 K 线条数 */
 const DEFAULT_VISIBLE_BARS = 100
@@ -64,30 +55,6 @@ function getBarSpacingLimits(width: number, barCount: number) {
   return {
     maxBarSpacing: width / Math.min(MIN_VISIBLE_BARS, barCount || MIN_VISIBLE_BARS),
   }
-}
-
-/** 涨跌颜色（红涨绿跌） */
-function getColor(change?: number) {
-  if (change == null) return "inherit"
-  return change > 0 ? "#f5222d" : change < 0 ? "#52c41a" : "inherit"
-}
-
-/** 格式化金额（万/亿） */
-function formatAmount(val?: number) {
-  if (val == null) return "-"
-  if (Math.abs(val) >= 1e8) return `${(val / 1e8).toFixed(2)}亿`
-  if (Math.abs(val) >= 1e4) return `${(val / 1e4).toFixed(2)}万`
-  return val.toFixed(2)
-}
-
-/** 格式化数字 */
-function formatNum(val?: number, digits = 2) {
-  return val == null ? "-" : val.toFixed(digits)
-}
-
-/** 格式化百分比 */
-function formatPercent(val?: number) {
-  return val == null ? "-" : `${val.toFixed(2)}%`
 }
 
 /**
@@ -163,60 +130,12 @@ function getDateBefore(days: number): string {
 }
 
 export default function StockDetail() {
-  const [searchParams] = useSearchParams()
-  const [params, setParams] = useState<[Market, string]>([
-    (searchParams.get("market") || "cn") as Market,
-    searchParams.get("code") || "000001",
-  ])
-  const [market, code] = params
+  // 当前股票由 zustand 管理（本地持久化），仪表盘点击/搜索选择后更新
+  const market = useStock((s) => s.market)
+  const code = useStock((s) => s.code)
+  const setStock = useStock((s) => s.setStock)
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
-
-  /* ---------- 搜索 ---------- */
-  const [keyword, setKeyword] = useState("")
-  // 防抖：输入停止 300ms 后再发起搜索请求
-  const [debouncedKeyword, setDebouncedKeyword] = useState("")
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedKeyword(keyword), 300)
-    return () => clearTimeout(timer)
-  }, [keyword])
-
-  const { data: searchData, isFetching: searching } = useQuery({
-    queryKey: ["stockSearch", debouncedKeyword],
-    queryFn: () => searchStock(debouncedKeyword),
-    enabled: debouncedKeyword.length > 0,
-  })
-  // 过滤基金，只保留股票/指数
-  const searchResults = (
-    (searchData as unknown as { code: number; data: SearchResult[] })?.data ?? []
-  )
-    .filter((item) => item.category !== "fund")
-    // 美股代码去除 `.` 及后缀（如 usaapl.oq -> usaapl）
-    .map((item) => ({
-      ...item,
-      code: item.market === "us" ? item.code.replace(/\..*$/, "") : item.code,
-    }))
-  const searchOptions = searchResults.map((item) => ({
-    value: item.code,
-    label: `${item.name} ${item.code}`,
-  }))
-
-  const handleSelect = (value: string) => {
-    const target = searchResults.find((item) => item.code === value)
-    if (!target) return
-    const nextMarket: Market = target.market === "hk" ? "hk" : target.market === "us" ? "us" : "cn"
-    setParams([nextMarket, value])
-  }
-
-  /* ---------- 行情 ---------- */
-  const trading = isTradingTime(market)
-  const { data: stockData, isLoading: stockLoading } = useQuery({
-    queryKey: ["StockDetail", market, code],
-    queryFn: () => getStockQuotes(market, [code]),
-    refetchInterval: trading ? 5_000 : false,
-  })
-  const stock = (stockData as unknown as { code: number; data: StockQuote[] })?.data?.[0]
-  const changeColor = getColor(stock?.changePercent)
 
   /* ---------- K线 ---------- */
   const [select, setSelect] = useState(CHART_OPTIONS[0].value)
@@ -503,64 +422,10 @@ export default function StockDetail() {
   return (
     <div className="flex flex-col gap-3">
       {/* 搜索部分 */}
-      <AutoComplete
-        options={searchOptions}
-        onSearch={setKeyword}
-        onSelect={handleSelect}
-        placeholder="输入代码或名称搜索"
-        allowClear
-        style={{ width: 320 }}
-        notFoundContent={searching ? <Spin size="small" /> : null}
-      />
+      <StockSearch onSelect={setStock} />
 
       {/* 股票详情部分 */}
-      <Card loading={stockLoading}>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <Title level={4} className="mb-0!">
-            {stock?.name ?? "-"}
-          </Title>
-          <Text type="secondary">{stock?.code ?? code}</Text>
-          <Tag color="blue">{MARKET_LABEL[market] ?? market}</Tag>
-        </div>
-
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-4">
-          <span className="text-3xl font-bold" style={{ color: changeColor }}>
-            {formatNum(stock?.price)}
-          </span>
-          <span style={{ color: changeColor }}>
-            {stock?.change != null && stock.change > 0 ? "+" : ""}
-            {formatNum(stock?.change)}
-          </span>
-          <span style={{ color: changeColor }}>
-            {stock?.changePercent != null && stock.changePercent > 0 ? "+" : ""}
-            {formatPercent(stock?.changePercent)}
-          </span>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
-          {[
-            { label: "今开", value: formatNum(stock?.open) },
-            { label: "最高", value: formatNum(stock?.high) },
-            { label: "最低", value: formatNum(stock?.low) },
-            { label: "昨收", value: formatNum(stock?.prevClose) },
-            { label: "成交量", value: formatAmount(stock?.volume) },
-            { label: "成交额", value: formatAmount(stock?.amount) },
-            { label: "换手率", value: formatPercent(stock?.turnoverRate) },
-            { label: "振幅", value: formatPercent(stock?.amplitude) },
-            { label: "量比", value: formatNum(stock?.volumeRatio) },
-            { label: "市盈率", value: formatNum(stock?.pe) },
-            { label: "市净率", value: formatNum(stock?.pb) },
-            { label: "总市值", value: formatAmount(stock?.totalMarketCap) },
-          ].map((item) => (
-            <div key={item.label}>
-              <Text type="secondary" className="block text-xs">
-                {item.label}
-              </Text>
-              <Text>{item.value}</Text>
-            </div>
-          ))}
-        </div>
-      </Card>
+      <StockQuoteCard market={market} code={code} />
 
       {/* 周期切换 */}
       <Radio.Group value={select} onChange={(e) => setSelect(e.target.value)}>
