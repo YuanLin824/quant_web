@@ -15,6 +15,7 @@ export interface StockQuote {
   amount: number
   market: string
   /* 可选扩展字段 */
+  /** 带市场前缀的完整代码（如 `sh600519`），区别于不带前缀的 `code`（如 `600519`） */
   marketId?: string
   time?: string
   timestamp?: number
