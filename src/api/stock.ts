@@ -97,6 +97,7 @@ export interface StockSignal {
   /** 信号类型，如 ma_golden_cross / macd_death_cross / rsi_overbought */
   type: string
   date: string
+  /** 信号发生K线的时间戳（毫秒） */
   timestamp: number
   close: number
   /** 附加信息，如 { fast: 5, slow: 20 } / { rsi: 81.6 } */

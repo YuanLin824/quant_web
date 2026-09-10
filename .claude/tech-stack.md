@@ -1,7 +1,9 @@
 # 技术栈
 
 - **React 19** + **Vite 8**，已启用 React Compiler（`@rolldown/plugin-babel` + `babel-plugin-react-compiler`）
+- **React Router 8**（`react-router`）— 路由与导航
 - **Ant Design 6** — 唯一 UI 组件库；antd CSS 变量定义在 `src/antd-css-var.css`，用于亮/暗主题
+- **lightweight-charts 5** — 股票详情页的 K线/分时图表
 - **Tailwind CSS 4**，通过 `@tailwindcss/vite` 插件（使用 v4 的 `@import "tailwindcss"` 语法，非 v3 配置文件）
 - **Zustand 5**，使用 `persist` 中间件进行客户端状态持久化
 - **TanStack React Query 5** 用于服务端状态缓存
