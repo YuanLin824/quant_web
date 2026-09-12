@@ -1,5 +1,6 @@
 import { getStockKLine, type KLineDto } from "@/api/stock"
 import StockPicker from "@/components/StockPicker"
+import StockSignalTable from "@/components/StockSignalTable"
 import {
   DOWN_COLOR,
   formatAmount,
@@ -530,6 +531,9 @@ export default function StockDetail() {
           </div>
         </Spin>
       </Card>
+
+      {/* 指标信号 */}
+      <StockSignalTable />
     </div>
   )
 }

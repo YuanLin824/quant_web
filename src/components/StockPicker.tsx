@@ -4,7 +4,7 @@ import useStock from "@/zustand/useStock"
 
 /**
  * 股票选择区：搜索框 + 当前股票行情卡片
- * 读写全局股票状态（useStock），股票详情页与指标信号页共用
+ * 读写全局股票状态（useStock），供股票详情页顶部使用
  */
 export default function StockPicker() {
   const market = useStock((s) => s.market)

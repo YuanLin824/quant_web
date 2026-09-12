@@ -5,7 +5,6 @@ import Login from "@/pages/Login"
 import NotFound from "@/pages/NotFound"
 import Register from "@/pages/Register"
 import StockDetail from "@/pages/StockDetail"
-import StockSignals from "@/pages/StockSignals"
 import { queryClient } from "@/queryClient"
 import useAuth from "@/zustand/useAuth"
 import { QueryClientProvider } from "@tanstack/react-query"
@@ -61,7 +60,6 @@ export default function App() {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/stock-detail" element={<StockDetail />} />
-                <Route path="/stock-signals" element={<StockSignals />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>

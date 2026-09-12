@@ -1,9 +1,8 @@
 import { getStockSignals, type StockSignal } from "@/api/stock"
-import StockPicker from "@/components/StockPicker"
 import { DOWN_COLOR, formatNum, UP_COLOR } from "@/utils/format"
 import useStock from "@/zustand/useStock"
-import { useQuery } from "@tanstack/react-query"
-import { Card, Empty, Radio, Spin, Table, Tag, Typography } from "antd"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import { Card, Empty, Radio, Table, Tag, Typography } from "antd"
 import type { ColumnsType } from "antd/es/table"
 import { useState } from "react"
 
@@ -182,52 +181,51 @@ const columns: ColumnsType<StockSignal> = [
   },
 ]
 
-export default function StockSignals() {
-  // 当前股票由 zustand 管理（本地持久化），与详情页共享
+/**
+ * 指标信号表格
+ * 展示当前股票（useStock）的 K 线技术指标信号，周期自带切换、与图表周期互不影响
+ */
+export default function StockSignalTable() {
+  // 当前股票由 zustand 管理（本地持久化），与详情页其他区域共享
   const market = useStock((s) => s.market)
   const code = useStock((s) => s.code)
   const [period, setPeriod] = useState("daily")
 
-  const { data, isLoading } = useQuery({
+  // placeholderData：切换周期/股票时保留上一次的数据，避免表格闪空态
+  const { data, isFetching } = useQuery({
     queryKey: ["stockSignals", market, code, period],
     queryFn: () => getStockSignals(market, code, period),
+    placeholderData: keepPreviousData,
   })
   // 最新的信号在前
   const signals = [...(data ?? [])].reverse()
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* 搜索 + 当前股票行情 */}
-      <StockPicker />
-
-      {/* 指标信号详情 */}
-      <Card
-        title="指标信号"
-        extra={
-          <Radio.Group
-            options={PERIOD_OPTIONS}
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            optionType="button"
-            buttonStyle="solid"
-          />
-        }
-      >
-        <Spin spinning={isLoading}>
-          <Table
-            columns={columns}
-            dataSource={signals}
-            rowKey={(record) => `${record.type}-${record.timestamp}`}
-            size="small"
-            pagination={{
-              pageSize: 20,
-              showSizeChanger: false,
-              showTotal: (total) => `共 ${total} 条信号`,
-            }}
-            locale={{ emptyText: <Empty description="暂无信号数据" /> }}
-          />
-        </Spin>
-      </Card>
-    </div>
+    <Card
+      title="指标信号"
+      extra={
+        <Radio.Group
+          options={PERIOD_OPTIONS}
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          optionType="button"
+          buttonStyle="solid"
+        />
+      }
+    >
+      <Table
+        loading={isFetching}
+        columns={columns}
+        dataSource={signals}
+        rowKey={(record) => `${record.type}-${record.timestamp}`}
+        pagination={{
+          pageSize: 5,
+          showSizeChanger: false,
+          style: { marginBottom: 0 },
+          showTotal: (total) => `共 ${total} 条信号`,
+        }}
+        locale={{ emptyText: <Empty description="暂无信号数据" /> }}
+      />
+    </Card>
   )
 }

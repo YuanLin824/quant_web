@@ -13,14 +13,13 @@
   - `/register` — 注册页
   - `/` — 重定向到 `/dashboard`
   - `/dashboard` — 仪表盘页（需认证）
-  - `/stock-detail` — 股票详情页（需认证）
-  - `/stock-signals` — 指标信号页（需认证）
+  - `/stock-detail` — 股票详情页（需认证，含指标信号表格）
   - `*` — 404页面
 
 ## 状态管理
 
 - `src/zustand/useAuth.ts` — 认证 store（accessToken、refreshToken、isAuthenticated、username 及 login/logout/updateTokens），持久化至 localStorage（key: `auth`）
-- `src/zustand/useStock.ts` — 当前股票 store（market、code 及 setStock），持久化至 localStorage（key: `stock`）；由仪表盘点击指数卡片或页内搜索写入，股票详情页/指标信号页读取
+- `src/zustand/useStock.ts` — 当前股票 store（market、code 及 setStock），持久化至 localStorage（key: `stock`）；由仪表盘点击指数卡片或页内搜索写入，股票详情页读取
 
 ## 服务端状态
 
@@ -48,11 +47,11 @@
 - `src/layout/menus.tsx` — `MENU_ITEMS` 数组同时驱动侧边栏和面包屑，key 即路由路径：
   - `/dashboard` — 仪表盘
   - `/stock-detail` — 股票详情
-  - `/stock-signals` — 指标信号
 
 ## 公共组件
 
-- `src/components/StockPicker.tsx` — 股票选择区（搜索框 + 当前股票行情卡片），股票详情页与指标信号页共用
+- `src/components/StockPicker.tsx` — 股票选择区（搜索框 + 当前股票行情卡片），详情页顶部使用
+- `src/components/StockSignalTable.tsx` — 指标信号表格（14 种信号的名称/建议/说明，自带日线/周线/月线切换与分页）
 - `src/components/StockSearch.tsx` — 股票搜索框（300ms 防抖、过滤基金、美股代码去交易所后缀，选中回调 `(market, code)`）
 - `src/components/StockQuoteCard.tsx` — 行情详情卡片（名称/代码/市场标签、现价与涨跌、12 项关键指标）
 - `src/components/ThemeSegmented.tsx` — 主题下拉切换组件（浅色/深色/系统），基于 next-themes

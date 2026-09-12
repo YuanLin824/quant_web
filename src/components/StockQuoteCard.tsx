@@ -24,7 +24,7 @@ export default function StockQuoteCard({ market, code }: { market: Market; code:
   const changeColor = getColor(stock?.changePercent)
 
   return (
-    <Card loading={isLoading}>
+    <Card loading={isLoading} styles={{ body: { minHeight: 228 } }}>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <Title level={4} className="mb-0!">
           {stock?.name ?? "-"}

@@ -50,12 +50,18 @@ export default function StockSearch({
   return (
     <AutoComplete
       options={options}
-      onSearch={setKeyword}
+      showSearch={{ onSearch: setKeyword }}
       onSelect={handleSelect}
       placeholder="输入代码或名称搜索"
       allowClear
       style={{ width: 320 }}
-      notFoundContent={isFetching ? <Spin size="small" /> : null}
+      notFoundContent={
+        isFetching ? (
+          <div className="flex justify-center">
+            <Spin size="small" />
+          </div>
+        ) : null
+      }
     />
   )
 }
